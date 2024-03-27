@@ -13,21 +13,18 @@ bandRasterInfo = syncRasterInfo.(band);
 
 rx.CenterFrequency =  5e9; %#ok<*UNRCH>
 
+
 scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
 scs =  scsOptions(1);
 
 
 nrbSSB = 10; % Number of resource blocks in an SSB
 scsNumeric = double(extract(scs,digitsPattern));
-%ofdmInfo = nrOFDMInfo(nrbSSB,scsNumeric);
-
-scsSSB = hSSBurstSubcarrierSpacing(refBurst.BlockPattern);
-ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
+ofdmInfo = nrOFDMInfo(nrbSSB,scsNumeric);
+rx.SampleRate = 10e6;
 
 framesPerCapture = 10;
-%captureDuration = seconds((framesPerCapture+1)*10e-3);
-
-captureDuration = seconds(1);
+captureDuration = seconds((framesPerCapture+1)*10e-3);
 
 
 % Capture wave
@@ -47,9 +44,5 @@ plot(waveform);
 % Free memory?
 release(rx);
 
-% Display spectrogram of received waveform
-figure;
-nfft = ofdmInfo.Nfft;
-spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
-title('Spectrogram of the Received Waveform')
+
 
