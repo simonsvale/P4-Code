@@ -3,8 +3,8 @@ radioOptions = hSDRBase.getDeviceNameOptions;
 rx = hSDRReceiver('B210');
 antennaOptions = getAntennaOptions(rx);
 rx.ChannelMapping = antennaOptions(1);
-rx.Gain = 76; % Max 76
-rx.SampleRate = 61.14e6;
+rx.Gain = 76; % Max 76 dBm
+rx.SampleRate = 39e6; % max ~39kHz
 
 
 fr1BandInfo = hSynchronizationRasterInfo.FR1DLOperatingBand;
