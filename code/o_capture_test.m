@@ -4,6 +4,7 @@ rx = hSDRReceiver('B210');
 antennaOptions = getAntennaOptions(rx);
 rx.ChannelMapping = antennaOptions(1);
 rx.Gain = 0; % Max 76
+rx.SampleRate = 10e6;
 
 
 fr1BandInfo = hSynchronizationRasterInfo.FR1DLOperatingBand;
