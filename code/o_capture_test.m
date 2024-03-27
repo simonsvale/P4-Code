@@ -1,6 +1,6 @@
 % Setup the SDR
 radioOptions = hSDRBase.getDeviceNameOptions;
-rx = hSDRReceiver(radioOptions(10)); % B210
+rx = hSDRReceiver('B210');
 antennaOptions = getAntennaOptions(rx);
 rx.ChannelMapping = antennaOptions(1);
 rx.Gain = 0; % Max 76
@@ -21,10 +21,10 @@ nrbSSB = 10; % Number of resource blocks in an SSB
 scsNumeric = double(extract(scs,digitsPattern));
 %ofdmInfo = nrOFDMInfo(nrbSSB,scsNumeric);
 
-scsSSB = hSSBurstSubcarrierSpacing(refBurst.BlockPattern);
+scsSSB = hSSBurstSubcarrierSpacing('CASE B');
 ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
 
-framesPerCapture = 10;
+%framesPerCapture = 10;
 %captureDuration = seconds((framesPerCapture+1)*10e-3);
 
 captureDuration = seconds(1);
