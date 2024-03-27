@@ -3,8 +3,8 @@ radioOptions = hSDRBase.getDeviceNameOptions;
 rx = hSDRReceiver('B210');
 antennaOptions = getAntennaOptions(rx);
 rx.ChannelMapping = antennaOptions(1);
-rx.Gain = 0; % Max 76
-rx.SampleRate = 10e6;
+rx.Gain = 76; % Max 76
+rx.SampleRate = 61.14e6;
 
 
 fr1BandInfo = hSynchronizationRasterInfo.FR1DLOperatingBand;
@@ -12,24 +12,21 @@ syncRasterInfo = hSynchronizationRasterInfo.SynchronizationRasterFR1;
 band = "n78";
 bandRasterInfo = syncRasterInfo.(band);
 
-rx.CenterFrequency =  5e9; %#ok<*UNRCH>
+rx.CenterFrequency =  3.71e9; %#ok<*UNRCH>
 
 scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
 scs =  scsOptions(1);
 
 
-nrbSSB = 10; % Number of resource blocks in an SSB
+nrbSSB = 20; % Number of resource blocks in an SSB
 scsNumeric = double(extract(scs,digitsPattern));
 %ofdmInfo = nrOFDMInfo(nrbSSB,scsNumeric);
 
 scsSSB = hSSBurstSubcarrierSpacing('CASE B');
 ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
 
-%framesPerCapture = 10;
-%captureDuration = seconds((framesPerCapture+1)*10e-3);
-
-captureDuration = seconds(1);
-
+framesPerCapture = 1;
+captureDuration = seconds((framesPerCapture+1)*10e-3);
 
 % Capture wave
 fprintf("Capturing wave" + newline);
