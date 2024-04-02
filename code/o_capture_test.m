@@ -1,10 +1,12 @@
 % Setup the SDR
-radioOptions = hSDRBase.getDeviceNameOptions;
-rx = hSDRReceiver('B210');
-antennaOptions = getAntennaOptions(rx);
-rx.ChannelMapping = antennaOptions(1);
+rx = hSDRReceiver('B210'); % Set radio type.
+rx.SDRObj.SerialNum = '8000758';
+rx.ChannelMapping = 1; % The antenna number.
+% antennaOptions = getAntennaOptions(rx);
+
 rx.Gain = 76; % Max 76 dBm
-rx.SampleRate = 39e6; % max ~39kHz
+rx.SampleRate = 39e6; % max ~39MHz
+rx.CenterFrequency =  2.11585e9; %3.71e9 %2.11585e9
 
 
 fr1BandInfo = hSynchronizationRasterInfo.FR1DLOperatingBand;
@@ -12,7 +14,6 @@ syncRasterInfo = hSynchronizationRasterInfo.SynchronizationRasterFR1;
 band = "n78";
 bandRasterInfo = syncRasterInfo.(band);
 
-rx.CenterFrequency =  3.71e9; %#ok<*UNRCH>
 
 scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
 scs =  scsOptions(1);
@@ -25,7 +26,7 @@ scsNumeric = double(extract(scs,digitsPattern));
 scsSSB = hSSBurstSubcarrierSpacing('CASE B');
 ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
 
-framesPerCapture = 1;
+framesPerCapture = 2;
 captureDuration = seconds((framesPerCapture+1)*10e-3);
 
 % Capture wave
@@ -34,7 +35,7 @@ waveform = capture(rx,captureDuration);
 
 % Detect SSBs
 fprintf("Detecting SSBs" + newline);
-%detectedSSB = findSSB(waveform,rx.CenterFrequency,scs,rx.SampleRate);
+detectedSSB = findSSB(waveform,rx.CenterFrequency,scs,rx.SampleRate);
 
 % Plot wave
 fprintf("Plotting wave" + newline);
