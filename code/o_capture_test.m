@@ -5,6 +5,9 @@ antennaOptions = getAntennaOptions(rx);
 rx.ChannelMapping = antennaOptions(1);
 rx.Gain = 76; % Max 76 dBm
 rx.SampleRate = 39e6; % max ~39kHz
+% Morten: max sample rate på radio AAU126327 er 32kHz
+% --> Hvis ErrOverflowInBurstMode Overflow occured in middle of a contiguous
+% burst., sæt SampleRate ned
 
 
 fr1BandInfo = hSynchronizationRasterInfo.FR1DLOperatingBand;
