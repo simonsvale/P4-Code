@@ -5,14 +5,10 @@ rx.ChannelMapping = 1; % The antenna number.
 
 rx.CenterFrequency =  2.11585e9; %3.71e9 %2.11585e9
 rx.Gain = 76; % Max 76 dBm
+rx.SampleRate = 30e6; % max ~39 MHz, theoretically 61.44 MHz.
 
-rx.SampleRate = 61.4e6; % max ~39MHz
-% Morten: max sample rate på radio AAU126327 er 32kHz
-% --> Hvis ErrOverflowInBurstMode Overflow occured in middle of a contiguous
-% burst., sæt SampleRate ned
-
-%GSCN = 7791;
-%rx.CenterFrequency = hSynchronizationRasterInfo.gscn2frequency(GSCN);
+GSCN = 7791;
+rx.CenterFrequency = hSynchronizationRasterInfo.gscn2frequency(GSCN);
 
 
 scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
@@ -32,12 +28,13 @@ captureDuration = seconds((framesPerCapture+1)*10e-3);
 % Capture wave
 fprintf("Capturing wave" + newline);
 try
+    lastwarn(''); % Clear warning state
     waveform = capture(rx,captureDuration);
-    [warning_message, warning_id] = lastwarn;
+    [warning_message, warning_id] = lastwarn; % Capture potential warning
 
     switch warning_id
         case 'sdru:SDRuReceiver:ReceiveUnsuccessful'
-            fprintf("[ERROR] Receive unsuccessful, terminating!" + newline);
+            fprintf("[ERROR] Receive unsuccessful, decrease sample rate, terminating!" + newline);
             delete(rx);
             return
     end
