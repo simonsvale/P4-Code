@@ -3,13 +3,12 @@ rx = hSDRReceiver('B210'); % Set radio type.
 rx.SDRObj.SerialNum = '8000748';
 rx.ChannelMapping = 1; % The antenna number.
 
-rx.CenterFrequency =  2.11585e9; %3.71e9 %2.11585e9
+%rx.CenterFrequency =  2.11585e9; %3.71e9 %2.11585e9
 rx.Gain = 76; % Max 76 dBm
-rx.SampleRate = 30e6; % max ~39 MHz, theoretically 61.44 MHz.
+rx.SampleRate = 35e6; % max ~39 MHz, theoretically 61.44 MHz.
 
-GSCN = 7791;
+GSCN = 5290; % 5290 = 2.11585e9 GHz.
 rx.CenterFrequency = hSynchronizationRasterInfo.gscn2frequency(GSCN);
-
 
 scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
 scs =  scsOptions(1);
@@ -49,9 +48,10 @@ end
 fprintf("Detecting SSBs" + newline);
 try
     detectedSSB = findSSB(waveform,rx.CenterFrequency,scs,rx.SampleRate);
-catch E2
-    fprintf("ERROR: " + E2.identifier);
+catch err
+    fprintf("ERROR: " + err.identifier);
     delete(rx);
+    return
 end
 
 % Plot wave
