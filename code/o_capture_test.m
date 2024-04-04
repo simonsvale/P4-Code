@@ -54,12 +54,6 @@ catch err
     return
 end
 
-% Plot wave
-fprintf("Plotting wave" + newline);
-plot = spectrumAnalyzer;
-plot.Title = "Received signal";
-plot(waveform);
-
 % Display spectrogram of received waveform
 figure;
 nfft = ofdmInfo.Nfft;
