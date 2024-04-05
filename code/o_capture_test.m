@@ -24,25 +24,8 @@ ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
 framesPerCapture = 2;
 captureDuration = seconds((framesPerCapture+1)*10e-3);
 
-% Capture wave
-fprintf("Capturing wave" + newline);
-try
-    lastwarn(''); % Clear warning state
-    waveform = capture(rx,captureDuration);
-    [warning_message, warning_id] = lastwarn; % Capture potential warning
 
-    switch warning_id
-        case 'sdru:SDRuReceiver:ReceiveUnsuccessful'
-            fprintf("[ERROR] Receive unsuccessful, decrease sample rate, terminating!" + newline);
-            delete(rx);
-            return
-    end
-catch err
-        fprintf("ERROR: "+err.identifier);
-        delete(rx);
-        return
-end
-
+waveform = variableSampleCapture(rx, captureDuration);
 
 % Detect SSBs
 fprintf("Detecting SSBs" + newline);
@@ -55,11 +38,15 @@ catch err
 end
 
 % Display spectrogram of received waveform
-figure;
 nfft = ofdmInfo.Nfft;
 spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
 title('Spectrogram of the Received Waveform');
 
 % Free memory, but better than release()
 delete(rx);
+delete(waveform);
+
+
+
+
 
