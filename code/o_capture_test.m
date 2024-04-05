@@ -24,7 +24,7 @@ ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
 framesPerCapture = 2;
 captureDuration = seconds((framesPerCapture+1)*10e-3);
 
-GSCNSweep(rx, captureDuration, ofdmInfo, 'GSCNData.xlsx');
+GSCNSweep(rx, captureDuration, ofdmInfo, 'GSCNDataAltered.xlsx');
 
 return % Test
 

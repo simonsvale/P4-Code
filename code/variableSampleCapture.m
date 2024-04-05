@@ -13,7 +13,7 @@ function waveform = variableSampleCapture(Recv, captureDuration)
             lastwarn(''); % Clear warning state.
             waveform = capture(Recv,captureDuration); % Capture wave
             [~, warning_id] = lastwarn; % Capture potential warning
-            
+
             % Check if the warning was the one related to sample rate.
             switch warning_id
                 case 'sdru:SDRuReceiver:ReceiveUnsuccessful'
