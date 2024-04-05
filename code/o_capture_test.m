@@ -1,6 +1,6 @@
 % Setup the SDR
 rx = hSDRReceiver('B210'); % Set radio type.
-rx.SDRObj.SerialNum = '8000748';
+rx.SDRObj.SerialNum = '8000758';
 rx.ChannelMapping = 1; % The antenna number.
 
 %rx.CenterFrequency =  2.11585e9; %3.71e9 %2.11585e9
@@ -24,8 +24,9 @@ ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
 framesPerCapture = 2;
 captureDuration = seconds((framesPerCapture+1)*10e-3);
 
-
+% Capture waveform
 waveform = variableSampleCapture(rx, captureDuration);
+
 
 % Detect SSBs
 fprintf("Detecting SSBs" + newline);
