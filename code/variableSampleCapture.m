@@ -1,6 +1,6 @@
 function waveform = variableSampleCapture(Recv, captureDuration)
     % Capture wave
-    disp("Capturing wave");
+    fprinf("Capturing wave ");
     
     % Set return variable
     waveform = [-1,-1];
@@ -18,13 +18,14 @@ function waveform = variableSampleCapture(Recv, captureDuration)
             switch warning_id
                 case 'sdru:SDRuReceiver:ReceiveUnsuccessful'
                     if Recv.SampleRate >= 1.1e6
+                        fprintf(".")
                         Recv.SampleRate = Recv.SampleRate - 1e6; % Negate a tiny amount
                         continue
                     end
   
                 % If the wave was captured succesfully.
                 otherwise
-                    disp("New sample rate: "+Recv.SampleRate);
+                    disp(newline+"New sample rate: "+Recv.SampleRate);
                     break   
             end
 
