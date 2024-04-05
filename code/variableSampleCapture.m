@@ -1,6 +1,4 @@
 function waveform = variableSampleCapture(Recv, captureDuration)
-    fprintf("Capturing wave ");
-    
     % Set return variable
     waveform = [-1,-1];
 
@@ -29,7 +27,7 @@ function waveform = variableSampleCapture(Recv, captureDuration)
 
                 % If the wave was captured succesfully.
                 otherwise
-                    disp(newline+"New sample rate: "+Recv.SampleRate);
+                    %disp(newline+"New sample rate: "+Recv.SampleRate);
                     break   
             end
 

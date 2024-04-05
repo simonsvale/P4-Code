@@ -28,6 +28,7 @@ GSCNSweep(rx, captureDuration, ofdmInfo, 'GSCNDataAltered.xlsx');
 
 return % Test
 
+
 % Capture waveform
 waveform = variableSampleCapture(rx, captureDuration);
 

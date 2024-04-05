@@ -1,4 +1,6 @@
 function GSCNSweep (rx, captureDuration, ofdmInfo, GSCNInfoFile)  
+    fprintf("Performing GSCN sweep!");
+
     % Supress warning about table.
     warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
 
@@ -8,7 +10,7 @@ function GSCNSweep (rx, captureDuration, ofdmInfo, GSCNInfoFile)
     % Create a new table
     GSCNStartRange = GSCNInfo.GSCN_B;
 
-    % Create a table for displaying all frequencies in FR1.
+    % Create a table for displaying all GCSN frequencies in the sweep.
     FR1Wave = single(2);
     
     % Loop through all GSCN values, start index is 1 in matlab.
@@ -18,12 +20,9 @@ function GSCNSweep (rx, captureDuration, ofdmInfo, GSCNInfoFile)
         
         % Capture waveform
         waveform = variableSampleCapture(rx, captureDuration);
-        
-        % Capture wave
-        AuxWave = waveform(:,1);
 
         % Concatenate
-        FR1Wave = cat(1, FR1Wave, AuxWave);
+        FR1Wave = cat(1, FR1Wave, waveform(:,1));
     end
 
     % Display figure
@@ -32,10 +31,7 @@ function GSCNSweep (rx, captureDuration, ofdmInfo, GSCNInfoFile)
     spectrogram(FR1Wave,ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
     title('FR1 GSCN Spectrogram');
     
-
     % Enable warning again.
     warning('on', 'MATLAB:table:ModifiedAndSavedVarnames');
-    
-    disp("Done!");
 
 end
