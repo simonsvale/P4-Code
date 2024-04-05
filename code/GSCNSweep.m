@@ -1,4 +1,4 @@
-function GSCNSweep (rx, captureDuration, GSCNInfoFile)  
+function GSCNSweep (rx, captureDuration, ofdmInfo, GSCNInfoFile)  
     % Read GSCCN info table.
     GSCNInfo = readtable(GSCNInfoFile,TextType='String');
     
@@ -12,6 +12,11 @@ function GSCNSweep (rx, captureDuration, GSCNInfoFile)
         
         % Capture waveform
         waveform = variableSampleCapture(rx, captureDuration);
+
+        figure;
+        nfft = ofdmInfo.Nfft;
+        spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
+        title('Spectrogram of the Received Waveform');
 
     end
     
