@@ -4,34 +4,38 @@ function waveform = variableSampleCapture(Recv, captureDuration)
     
     % Set return variable
     waveform = [-1,-1];
+
+    warning('off','sdru:SDRuReceiver:ReceiveUnsuccessful'); % turn off specific warning
     
     while true
         
         try
-            lastwarn(''); % Clear warning state
+            lastwarn(''); % Clear warning state.
             waveform = capture(Recv,captureDuration); % Capture wave
             [~, warning_id] = lastwarn; % Capture potential warning
             
             % Check if the warning was the one related to sample rate.
             switch warning_id
                 case 'sdru:SDRuReceiver:ReceiveUnsuccessful'
-                    if Recv.SampleRate >= 1e6
-                        disp("Rate: "+Recv.SampleRate);
-                        Recv.SampleRate = Recv.SampleRate - 0.5e6; % Negate a tiny amount
+                    if Recv.SampleRate >= 1.1e6
+                        Recv.SampleRate = Recv.SampleRate - 1e6; % Negate a tiny amount
                         continue
                     end
-                
+  
                 % If the wave was captured succesfully.
                 otherwise
-                    return    
+                    disp("New sample rate: "+Recv.SampleRate);
+                    break   
             end
 
         catch err
-            fprintf("CAPTURE ERROR: "+err.identifier+newline);
+            disp("CAPTURE ERROR: "+err.identifier);
             delete(Recv);
-            return
+            break
         end
         
     end
+
+    warning('on','sdru:SDRuReceiver:ReceiveUnsuccessful');
 
 end

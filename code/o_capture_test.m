@@ -5,7 +5,7 @@ rx.ChannelMapping = 1; % The antenna number.
 
 %rx.CenterFrequency =  2.11585e9; %3.71e9 %2.11585e9
 rx.Gain = 76; % Max 76 dBm
-rx.SampleRate = 35e6; % max ~39 MHz, theoretically 61.44 MHz.
+rx.SampleRate = 41e6; % max ~41 MHz, theoretically 61.44 MHz.
 
 GSCN = 5290; % 5290 = 2.11585e9 GHz.
 rx.CenterFrequency = hSynchronizationRasterInfo.gscn2frequency(GSCN);
@@ -38,13 +38,13 @@ catch err
 end
 
 % Display spectrogram of received waveform
+figure;
 nfft = ofdmInfo.Nfft;
 spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
 title('Spectrogram of the Received Waveform');
 
 % Free memory, but better than release()
 delete(rx);
-delete(waveform);
 
 
 
