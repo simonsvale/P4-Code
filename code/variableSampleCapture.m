@@ -1,5 +1,5 @@
 function waveform = variableSampleCapture(Recv, captureDuration)
-    fprintf("Capturing wave");
+    fprintf("Capturing wave ");
     
     % Set return variable
     waveform = [-1,-1];
