@@ -44,7 +44,7 @@ function GSCNSweep (rx, GSCNInfoFile)
 
     % Display figure
     figure;
-    nfft = ofdmInfo.Nfft * GSCNLength/3;
+    nfft = ofdmInfo.Nfft * GSCNLength/4;
 
     spectrogram(FR1Wave,ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
     title('FR1 GSCN Spectrogram');
