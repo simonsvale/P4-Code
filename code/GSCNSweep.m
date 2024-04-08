@@ -24,22 +24,29 @@ function GSCNSweep (rx, GSCNInfoFile)
 
     nrbSSB = 20; % Number of resource blocks in an SSB 
     
+    % Set default subcarrier spacing.
+    scs = "15 kHz";
+    
     % Loop through all GSCN values, start index is 1 in matlab.
     for i = 1:GSCNLength  
         % Set subcarrier spacing case.
-        scsSSB = hSSBurstSubcarrierSpacing( 'CASE '+GSCNScs(i) );
 
-        % OFDM demodulation information
-        ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
+        % Get GSCN subcarrier spacing, if not case A.
+        switch GSCNScs(i)
+           case 'B'
+                scs = "30 kHz";
+
+           case 'C'
+                scs = "30 kHz";
+        end
 
         for n = GSCNStartRange(i):GSCNEndRange(i)
             % Set detection options
             rx.CenterFrequency = hSynchronizationRasterInfo.gscn2frequency( n );
-            scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
-            scs =  scsOptions(1);
 
             % Capture waveformll
-            waveform = variableSampleCapture(rx, captureDuration); 
+            waveform = variableSampleCapture(rx, captureDuration);
+
             
             % Detect SSBs
             try

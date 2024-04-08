@@ -7,14 +7,14 @@ function GSCNSweep (rx, GSCNInfoFile)
     % Read GSCCN info table.
     GSCNInfo = readtable(GSCNInfoFile,TextType='String');
     
-    % Create a new table, containing GSCN start values 
-    % Subcarrier spacing cases.
-    % and 
+    % Create a new table, containing GSCN start values,
+    % GSCN end values and subcarrier spacing cases.
     GSCNStartRange = GSCNInfo.GSCN_B;
+    GSCNEndRange = GSCNInfo.GSCN_E;
     GSCNScs = GSCNInfo.CASE;
 
     % Create a table for displaying all GCSN frequencies in the sweep.
-    FR1Wave = single(2);
+    % FR1Wave = single(2);
 
     GSCNLength = height(GSCNStartRange);
     
@@ -24,58 +24,57 @@ function GSCNSweep (rx, GSCNInfoFile)
 
     nrbSSB = 20; % Number of resource blocks in an SSB 
     
+    % Set default subcarrier spacing.
+    scs = '15 kHz';
+    
     % Loop through all GSCN values, start index is 1 in matlab.
-    for index = 1:GSCNLength  
-        % Set new center frequency based on the GSCN index.
-        rx.CenterFrequency = hSynchronizationRasterInfo.gscn2frequency( GSCNStartRange(index) );
-       
+    for i = 1:GSCNLength  
         % Set subcarrier spacing case.
-        scsSSB = hSSBurstSubcarrierSpacing( 'CASE '+GSCNScs(index) );
+        
+        CASE = GSCNScs(i);
 
-        % OFDM demodulation information
-        ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
+        % Get GSCN subcarrier spacing, if not case A.
+        switch Case
+           case 'B'
+                scs = '30 kHz';
 
-        % Capture waveform
-        waveform = variableSampleCapture(rx, captureDuration); 
+           case 'C'
+                scs = '30 kHz';
+        end
 
+        for n = GSCNStartRange(i):GSCNEndRange(i)
+            % Set detection options
+            rx.CenterFrequency = hSynchronizationRasterInfo.gscn2frequency( n );
 
-        scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
-        scs =  scsOptions(1);
-        detectedSSB = findSSB(waveform,rx.CenterFrequency,scs,rx.SampleRate);
+            % Capture waveformll
+            waveform = variableSampleCapture(rx, captureDuration);
 
+            
+            % Detect SSBs
+            try
+                detectedSSB = findSSB(waveform,rx.CenterFrequency,scs,rx.SampleRate);
+            catch err
+                disp("ERROR: " + err.identifier);
+                continue
+            end
+        end
 
-        % Concatenate
-        FR1Wave = cat(1, FR1Wave, waveform(:,1));
+        % Concatenate (Legacy)
+        % FR1Wave = cat(1, FR1Wave, waveform(:,1));
     end
 
-
+    %{
     % Display figure
     figure;
     nfft = ofdmInfo.Nfft * GSCNLength/4;
-
+    
     spectrogram(FR1Wave,ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
     title('FR1 GSCN Spectrogram');
-    
-    rx.CenterFrequency = 2.11585e9;
-    waveform2 = variableSampleCapture(rx, captureDuration);
-    scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
-    scs =  scsOptions(1);
-
-    % Detect SSBs
-    fprintf("Detecting SSBs" + newline);
-    try
-        detectedSSB = findSSB(waveform2,rx.CenterFrequency,scs,rx.SampleRate);
-    catch err
-        fprintf("ERROR: " + err.identifier);
-        delete(rx);
-        return
-    end
-
+    %}
 
     % Free memory, but better than release()
     delete(rx);
     
-
     % Enable warning again.
     warning('on', 'MATLAB:table:ModifiedAndSavedVarnames');
 
