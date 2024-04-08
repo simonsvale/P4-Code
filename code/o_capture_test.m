@@ -9,3 +9,7 @@ rx.SampleRate = 31e6; % max ~41 MHz, theoretically 61.44 MHz.
 
 % Perform GSCN sweep and detect SSB
 GSCNSweep(rx, 'GSCNSSBFreqs.xlsx');
+
+
+% ARFCN:
+% https://mastdatabase.co.uk/dk/arfcn-list/
