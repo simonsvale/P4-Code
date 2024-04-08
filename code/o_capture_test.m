@@ -7,4 +7,5 @@ rx.ChannelMapping = 1; % The antenna number.
 rx.Gain = 76; % Max 76 dBm
 rx.SampleRate = 31e6; % max ~41 MHz, theoretically 61.44 MHz.
 
-GSCNSweep(rx, 'GSCNDataAltered.xlsx');
+% Perform GSCN sweep and detect SSB
+GSCNSweep(rx, 'GSCNSSBFreqs.xlsx');

@@ -14,7 +14,7 @@ function GSCNSweep (rx, GSCNInfoFile)
     GSCNScs = GSCNInfo.CASE;
 
     % Create a table for displaying all GCSN frequencies in the sweep.
-    FR1Wave = single(2);
+    % FR1Wave = single(2);
 
     GSCNLength = height(GSCNStartRange);
     
@@ -26,41 +26,42 @@ function GSCNSweep (rx, GSCNInfoFile)
     
     % Loop through all GSCN values, start index is 1 in matlab.
     for i = 1:GSCNLength  
-        % Set new center frequency based on the GSCN index.
-        rx.CenterFrequency = hSynchronizationRasterInfo.gscn2frequency( GSCNStartRange(i) );
-       
         % Set subcarrier spacing case.
         scsSSB = hSSBurstSubcarrierSpacing( 'CASE '+GSCNScs(i) );
 
         % OFDM demodulation information
         ofdmInfo = nrOFDMInfo(nrbSSB,scsSSB,'SampleRate',rx.SampleRate);
 
-        % Capture waveform
-        waveform = variableSampleCapture(rx, captureDuration); 
-
-
         for n = GSCNStartRange(i):GSCNEndRange(i)
             % Set detection options
             rx.CenterFrequency = hSynchronizationRasterInfo.gscn2frequency( n );
             scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
             scs =  scsOptions(1);
+
+            % Capture waveformll
+            waveform = variableSampleCapture(rx, captureDuration); 
             
             % Detect SSBs
-            detectedSSB = findSSB(waveform,rx.CenterFrequency,scs,rx.SampleRate);
+            try
+                detectedSSB = findSSB(waveform,rx.CenterFrequency,scs,rx.SampleRate);
+            catch err
+                disp("ERROR: " + err.identifier);
+                continue
+            end
         end
 
-        % Concatenate
-        FR1Wave = cat(1, FR1Wave, waveform(:,1));
+        % Concatenate (Legacy)
+        % FR1Wave = cat(1, FR1Wave, waveform(:,1));
     end
 
-
+    %{
     % Display figure
     figure;
     nfft = ofdmInfo.Nfft * GSCNLength/4;
     
     spectrogram(FR1Wave,ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
     title('FR1 GSCN Spectrogram');
-    
+    %}
 
     % Free memory, but better than release()
     delete(rx);
