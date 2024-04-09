@@ -1,4 +1,4 @@
-function detectedSSB = findSSB(waveform,centerFrequency,scs,sampleRate,showFig)
+function [detectedSSB, msOffset] = findSSB(waveform,centerFrequency,scs,sampleRate,showFig)
 % FINDSSB returns a logical value that depends on if WAVEFORM contains a
 % valid SSB.
     ssbBlockPattern = hSynchronizationRasterInfo.getBlockPattern(scs,centerFrequency);
@@ -107,6 +107,14 @@ function detectedSSB = findSSB(waveform,centerFrequency,scs,sampleRate,showFig)
         startSymbol = 1;
         numSymbolsSSB = 4;
         detectedSSB = true;
+        
+        % Calculate offset in miliseconds.
+        rxOfdmInfo = nrOFDMInfo(nrbSSB,scsNumeric,'SampleRate',sampleRate);
+        
+        srRatio = sampleRate/(scsNumeric*1e3*rxOfdmInfo.Nfft);
+        firstSymbolLength = rxOfdmInfo.SymbolLengths(1)*srRatio;
+
+        msOffset = (timingOffset+firstSymbolLength)/sampleRate*1e3;
 
         if showFig
             figure;imagesc(abs(rxGrid(:,1:last,1))); axis xy
@@ -121,6 +129,7 @@ function detectedSSB = findSSB(waveform,centerFrequency,scs,sampleRate,showFig)
 
     else
         detectedSSB = false;
+        msOffset = -1;
         %fprintf("<strong>No SSB Detected at GSCN %d (%.2f MHz).</strong>\n",gscn,centerFrequency/1e6);
     end
 end

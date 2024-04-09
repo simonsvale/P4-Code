@@ -1,6 +1,6 @@
 
 % Both return values are arrays with same size.
-function [SSBFrequencies, periodicity] = ARFCNSweep(rx, ARFCNFile)
+function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile)
     disp("Performing ARFCN sweep!");
 
     % Supress warning about table.
@@ -15,11 +15,9 @@ function [SSBFrequencies, periodicity] = ARFCNSweep(rx, ARFCNFile)
     framesPerCapture = 2;
     captureDuration = seconds((framesPerCapture+1)*10e-3);
 
-    nrbSSB = 20; % Number of resource blocks in an SSB 
-
-    % Create a vector for storing confirmed SSB frequencies and their periodicity.
+    % Create empty arrays for storing confirmed SSB frequencies and their periodicity.
     SSBFrequencies = [];
-    periodicity = [];
+    msOffset = [];
 
     % Loop through all ARFCN values, start index is 1 in matlab.
     for i = 1:ARFCNLength
@@ -33,13 +31,24 @@ function [SSBFrequencies, periodicity] = ARFCNSweep(rx, ARFCNFile)
         % Capture waveform
         waveform = variableSampleCapture(rx, captureDuration);
         
-        % Detect SSBs
         try
-            SSB = findSSB(waveform, rx.CenterFrequency, scs, rx.SampleRate, true);
+            % Attempt to detect the SSBs on the given ARFCN frequencies.
+            [SSB, offset] = findSSB(waveform, rx.CenterFrequency, scs, rx.SampleRate, false);
             
             if SSB
                 % If an SSB is found add it to the return array.
                 SSBFrequencies(end+1) = rx.CenterFrequency;
+                msOffset(end+1) = offset;
+                
+                % Display fig
+                scsSSB = hSSBurstSubcarrierSpacing('CASE C');
+                ofdmInfo = nrOFDMInfo(20,scsSSB,'SampleRate',rx.SampleRate);
+            
+                figure;
+                nfft = ofdmInfo.Nfft;
+                spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
+                title('Spectrogram of the Received Waveform');
+
             else
                 disp("No SSB found at "+rx.CenterFrequency);
             end
@@ -50,7 +59,7 @@ function [SSBFrequencies, periodicity] = ARFCNSweep(rx, ARFCNFile)
         end
     end
 
-    % Free memory, but better than release()
+    % Free memory, does the same as release(), but better.
     delete(rx);
     
     % Enable warning again.
