@@ -1,4 +1,4 @@
-function detectedSSB = findSSB(waveform,centerFrequency,scs,sampleRate)
+function detectedSSB = findSSB(waveform,centerFrequency,scs,sampleRate,showFig)
 % FINDSSB returns a logical value that depends on if WAVEFORM contains a
 % valid SSB.
     ssbBlockPattern = hSynchronizationRasterInfo.getBlockPattern(scs,centerFrequency);
@@ -102,18 +102,23 @@ function detectedSSB = findSSB(waveform,centerFrequency,scs,sampleRate)
         else
             last = 14*4;
         end
-        figure;imagesc(abs(rxGrid(:,1:last,1))); axis xy
-        xlabel('OFDM symbol'); ylabel('Subcarrier');
-        ttl = sprintf('Resource Grid of SS Burst at GSCN %d (%.2f MHz)',gscn,centerFrequency/1e6);
-        title(ttl)
+
         ssbFreqOrigin = 12*(demodRB-nrbSSB)/2 + 1;
         startSymbol = 1;
         numSymbolsSSB = 4;
-        rectangle('Position',[startSymbol+0.5 ssbFreqOrigin-0.5 numSymbolsSSB 12*nrbSSB],EdgeColor='r',LineWidth=1.5)
-        str = sprintf('Strongest SSB: %d',ssbIndex);
-        text(startSymbol,ssbFreqOrigin-nrbSSB,0,str,FontSize=12,Color='w');
         detectedSSB = true;
-        drawnow
+
+        if showFig
+            figure;imagesc(abs(rxGrid(:,1:last,1))); axis xy
+            xlabel('OFDM symbol'); ylabel('Subcarrier');
+            ttl = sprintf('Resource Grid of SS Burst at GSCN %d (%.2f MHz)',gscn,centerFrequency/1e6);
+            title(ttl)
+            rectangle('Position',[startSymbol+0.5 ssbFreqOrigin-0.5 numSymbolsSSB 12*nrbSSB],EdgeColor='r',LineWidth=1.5)
+            str = sprintf('Strongest SSB: %d',ssbIndex);
+            text(startSymbol,ssbFreqOrigin-nrbSSB,0,str,FontSize=12,Color='w');
+            drawnow
+        end
+
     else
         detectedSSB = false;
         %fprintf("<strong>No SSB Detected at GSCN %d (%.2f MHz).</strong>\n",gscn,centerFrequency/1e6);

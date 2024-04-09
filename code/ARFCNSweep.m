@@ -35,7 +35,7 @@ function [SSBFrequencies, periodicity] = ARFCNSweep(rx, ARFCNFile)
         
         % Detect SSBs
         try
-            SSB = findSSB(waveform,rx.CenterFrequency,scs,rx.SampleRate);
+            SSB = findSSB(waveform, rx.CenterFrequency, scs, rx.SampleRate, true);
             
             if SSB
                 % If an SSB is found add it to the return array.
