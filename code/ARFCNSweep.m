@@ -33,7 +33,7 @@ function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile)
         
         try
             % Attempt to detect the SSBs on the given ARFCN frequencies.
-            [SSB, offset] = findSSB(waveform, rx.CenterFrequency, scs, rx.SampleRate, false);
+            [SSB, offset] = approximateSSBPeriodicity(waveform, rx.CenterFrequency, scs, rx.SampleRate, false);
             
             if SSB
                 % If an SSB is found add it to the return array.
@@ -41,8 +41,7 @@ function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile)
                 msOffset(end+1) = offset;
                 
                 % Display fig
-                scsSSB = hSSBurstSubcarrierSpacing('CASE C');
-                ofdmInfo = nrOFDMInfo(20,scsSSB,'SampleRate',rx.SampleRate);
+                ofdmInfo = nrOFDMInfo(20,15,'SampleRate',rx.SampleRate);
             
                 figure;
                 nfft = ofdmInfo.Nfft;

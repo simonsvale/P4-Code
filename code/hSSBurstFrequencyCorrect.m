@@ -2,9 +2,8 @@
 
 %   Copyright 2020-2023 The MathWorks, Inc.
 
-function [rxWaveform, freqOffset, NID2] = hSSBurstFrequencyCorrect(rxWaveform,ssbBlockPattern,rxSampleRate,searchBW,displayFigure)
+function [rxWaveform, freqOffset, NID2] = hSSBurstFrequencyCorrect(rxWaveform,scs,rxSampleRate,searchBW,displayFigure)
 
-    scs = hSSBurstSubcarrierSpacing(ssbBlockPattern);
     if nargin < 4
         searchBW = 6*scs;
     end
