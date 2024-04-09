@@ -116,6 +116,6 @@ function detectedSSB = findSSB(waveform,centerFrequency,scs,sampleRate)
         drawnow
     else
         detectedSSB = false;
-        fprintf("<strong>No SSB Detected at GSCN %d (%.2f MHz).</strong>\n",gscn,centerFrequency/1e6);
+        %fprintf("<strong>No SSB Detected at GSCN %d (%.2f MHz).</strong>\n",gscn,centerFrequency/1e6);
     end
 end
