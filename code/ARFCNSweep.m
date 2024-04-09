@@ -1,6 +1,6 @@
 
 % Both return values are arrays with same size.
-function [LocatedSSBFrequencies, periodicity] = ARFCNSweep(rx, ARFCNFile)
+function [SSBFrequencies, periodicity] = ARFCNSweep(rx, ARFCNFile)
     disp("Performing ARFCN sweep!");
 
     % Supress warning about table.
@@ -16,7 +16,11 @@ function [LocatedSSBFrequencies, periodicity] = ARFCNSweep(rx, ARFCNFile)
     captureDuration = seconds((framesPerCapture+1)*10e-3);
 
     nrbSSB = 20; % Number of resource blocks in an SSB 
-    
+
+    % Create a vector for storing confirmed SSB frequencies and their periodicity.
+    SSBFrequencies = [];
+    periodicity = [];
+
     % Loop through all ARFCN values, start index is 1 in matlab.
     for i = 1:ARFCNLength
         % Convert ARFCN to center frequency.
@@ -33,10 +37,11 @@ function [LocatedSSBFrequencies, periodicity] = ARFCNSweep(rx, ARFCNFile)
         try
             SSB = findSSB(waveform,rx.CenterFrequency,scs,rx.SampleRate);
             
-            if SSB 
-                disp("SSB");
+            if SSB
+                % If an SSB is found add it to the return array.
+                SSBFrequencies(end+1) = rx.CenterFrequency;
             else
-                disp("No SSB")
+                disp("No SSB found at "+rx.CenterFrequency);
             end
 
         catch err
