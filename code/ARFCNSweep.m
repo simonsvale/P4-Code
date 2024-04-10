@@ -40,14 +40,22 @@ function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile)
                 SSBFrequencies(end+1) = rx.CenterFrequency;
                 msOffset(end+1) = offset;
                 
+                
                 % Display fig
                 ofdmInfo = nrOFDMInfo(20,15,'SampleRate',rx.SampleRate);
-            
+                
                 figure;
                 nfft = ofdmInfo.Nfft;
-                spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
-                title('Spectrogram of the Received Waveform');
 
+                spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
+                
+                hold on;
+                %rectangle('Position',[msOffset 0 1 10]);
+                plot(offset, 0, 'r.', 'MarkerSize', 10);
+                %plot(msOffset+20, 0, 'r.', 'MarkerSize', 10);
+
+                title('Spectrogram of the Received Waveform');
+                
             else
                 disp("No SSB found at "+rx.CenterFrequency);
             end

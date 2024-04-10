@@ -3,10 +3,9 @@ function [detectedSSB, msOffset] = approximateSSBPeriodicity(waveform,centerFreq
 % valid SSB.
     scsNumeric = double(extract(scs,digitsPattern));
     searchBW = 3*scsNumeric;
-    displayFigure = false;
 
     % Important in selecting the strongest SSB.
-    [correctedWaveform,~,NID2] = hSSBurstFrequencyCorrect(waveform,scsNumeric,sampleRate,searchBW,displayFigure);
+    [correctedWaveform,~,NID2] = hSSBurstFrequencyCorrect(waveform,scsNumeric,sampleRate,searchBW);
 
     % Create a reference grid for timing estimation
     nrbSSB = 20;
@@ -17,6 +16,8 @@ function [detectedSSB, msOffset] = approximateSSBPeriodicity(waveform,centerFreq
     nSlot = 0;
     timingOffset = nrTimingEstimate(correctedWaveform,nrbSSB,scsNumeric,nSlot,refGrid,SampleRate=sampleRate);
     correctedWaveform = correctedWaveform(1+timingOffset:end,:);
+    
+    % Synchronization, OFDM demodulation, and extraction of strongest SS block
     rxGrid = nrOFDMDemodulate(correctedWaveform,nrbSSB,scsNumeric,nSlot,SampleRate=sampleRate);
     rxGrid = rxGrid(:,2:5,:);
 
