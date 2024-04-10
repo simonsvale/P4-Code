@@ -7,7 +7,7 @@ rx.Gain = 76; % Max 76 dBm
 rx.SampleRate = 31e6; % max ~41 MHz, theoretically 61.44 MHz.
 
 % Perform GSCN sweep and detect SSB
-[SSB, offset] = ARFCNSweep(rx, 'ARFCNDanmark.xlsx');
+[SSB, offset] = ARFCNSweep(rx, 'ARFCNDanmark.xlsx', milliseconds(300));
 
 % DEBUG
 disp("Center frequency [GHz]: ");

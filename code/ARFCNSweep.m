@@ -1,6 +1,6 @@
 
 % Both return values are arrays with same size.
-function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile)
+function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile, captureDurationMiliseconds)
     disp("Performing ARFCN sweep!");
 
     % Supress warning about table.
@@ -10,10 +10,6 @@ function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile)
     ARFCNInfo = readtable(ARFCNFile,TextType='String');
     ARFCN = ARFCNInfo.ARFCN;
     ARFCNLength = height(ARFCN);
-
-    % Set the amount of frames to capture.
-    framesPerCapture = 2;
-    captureDuration = seconds((framesPerCapture+1)*10e-3);
 
     % Create empty arrays for storing confirmed SSB frequencies and their periodicity.
     SSBFrequencies = [];
@@ -29,7 +25,7 @@ function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile)
         scs =  scsOptions(1);
 
         % Capture waveform
-        waveform = variableSampleCapture(rx, captureDuration);
+        waveform = variableSampleCapture(rx, captureDurationMiliseconds);
         
         try
             % Attempt to detect the SSBs on the given ARFCN frequencies.
@@ -49,10 +45,17 @@ function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile)
 
                 spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
                 
+                plotVar = [];
+
+                for n = 1:milliseconds(captureDurationMiliseconds)/20
+                    plotVar(end+1) = offset+20.0*n;
+                    plotVar(end+1) = offset-20.0*n;
+                end
+
                 hold on;
-                %rectangle('Position',[msOffset 0 1 10]);
-                plot(offset, 0, 'r.', 'MarkerSize', 10);
-                %plot(msOffset+20, 0, 'r.', 'MarkerSize', 10);
+                plot(plotVar, 0, 'r.', 'MarkerSize', 10);
+
+                plot(offset, 0, 'b.', 'MarkerSize', 10);
 
                 title('Spectrogram of the Received Waveform');
                 
