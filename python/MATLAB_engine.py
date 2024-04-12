@@ -1,8 +1,10 @@
-from os import getcwd
-import matlab.engine
-
 class MATLAB_engine():
     """
+    Call this class as a with-object to ensure the connection is closed correctly:
+    with MATLAB_engine() as matlab:
+        result = matlab.start_test_multiply_numbers(5, 2)
+        print(result)
+
     Requirement: matlab.engine-pakke i Python
         Installation på Windows:
         > cd "[Matlab-path]\extern\engines\python"
@@ -10,12 +12,15 @@ class MATLAB_engine():
         > py -m pip install .
     """
     
+    from os import getcwd
+    import matlab.engine
+
     def __init__(self) -> None:
         script_folder = "\code"
-        cwd = getcwd() + script_folder
+        cwd = self.getcwd() + script_folder
         cwd.replace('\\', '\\\\')
 
-        self.eng = matlab.engine.start_matlab()
+        self.eng = self.matlab.engine.start_matlab()
         self.eng.cd(cwd, nargout=0)
 
     def __enter__(self):
