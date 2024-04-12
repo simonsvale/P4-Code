@@ -3,8 +3,8 @@ import matlab.engine
 
 class MATLAB_engine():
     """
-    Requirement:
-        Installation af matlab.engine på Windows:
+    Requirement: matlab.engine-pakke i Python
+        Installation på Windows:
         > cd "[Matlab-path]\extern\engines\python"
           fx C:\Program Files\MATLAB\R2023b\extern\engines\python
         > py -m pip install .
@@ -30,7 +30,8 @@ class MATLAB_engine():
         return output
 
     def start_device_test_script(self):
-        self.eng.matlab_test(nargout=0)
+        self.eng._test_device_test(nargout=0)
+        # nargout er Num ARGuments OUT - eller antallet af outputs man forventer
 
 
 if __name__ == "__main__":
