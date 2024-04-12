@@ -1,0 +1,36 @@
+
+timing = 2;
+duration = timing;
+
+
+running = true;
+while running
+    
+    % Wait duration
+    tic;
+    while toc < duration
+    end
+
+    % Do code / transmission
+    tic;
+    
+    for i = 1:1000
+        fprintf("");
+    end
+
+    t2 = toc;
+
+    % Take new timestamp
+    duration = timing-(0-t2)*10e-3;
+
+
+end
+
+
+
+
+
+
+
+
+
