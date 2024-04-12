@@ -28,6 +28,11 @@ class MATLAB_engine():
     def start_test_script(self):
         self.eng._test_function("hej med dig", nargout=0)
 
+    def start_device_test_script(self):
+        self.eng.matlab_test(nargout=0)
+
+
 if __name__ == "__main__":
     with MATLAB_engine() as matlab:
-        matlab.start_test_script()
+        #matlab.start_test_script()
+        matlab.start_device_test_script()
