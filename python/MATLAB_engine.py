@@ -24,8 +24,10 @@ class MATLAB_engine():
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.eng.quit()
 
-    def start_test_script(self):
-        self.eng._test_function("hej med dig", nargout=0)
+    def start_test_multiply_numbers(self, number_1:int, number_2:int) -> int:
+        """Takes two integers as a parameter, passes the parameter to MATLAB, to multiply, and captures and returns the output"""
+        output = self.eng._test_multiply_numbers(number_1, number_2)
+        return output
 
     def start_device_test_script(self):
         self.eng.matlab_test(nargout=0)
@@ -33,5 +35,7 @@ class MATLAB_engine():
 
 if __name__ == "__main__":
     with MATLAB_engine() as matlab:
-        #matlab.start_test_script()
-        matlab.start_device_test_script()
+        result = matlab.start_test_multiply_numbers(5, 2)
+        print(result)
+        
+        #matlab.start_device_test_script()
