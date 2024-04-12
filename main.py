@@ -6,44 +6,69 @@ def find_radio():
 def ssb_sweep():
     print("Performing SSB Sweep...")
 
-def ssb_jamming():
-    print("Performing SSB Jamming...")
+def ssb_jamming(gain="10", frequency="100", timing="5"):
+    print(f"Performing SSB Jamming with gain={gain}, frequency={frequency}, timing={timing}...")
 
-def sss_jamming():
-    print("Performing SSS Jamming...")
+def sss_jamming(gain="15", frequency="200", timing="10"):
+    print(f"Performing SSS Jamming with gain={gain}, frequency={frequency}, timing={timing}...")
 
-def pdch_exploit():
-    print("Performing PDCH Exploit...")
+def pdch_exploit(gain="20", frequency="300", timing="15"):
+    print(f"Performing PDCH Exploit with gain={gain}, frequency={frequency}, timing={timing}...")
 
 def choose_attack():
     global selected_attack
+    global selected_attack_func
+    global gain, frequency, timing
+
     print("Choose Attack:")
     print("[1] SSB Jamming")
     print("[2] SSS Jamming")
     print("[3] PDCH Exploit")
 
     attack_options = {
-        '1': 'SSB Jamming',
-        '2': 'SSS Jamming',
-        '3': 'PDCH Exploit'
+        '1': ssb_jamming,
+        '2': sss_jamming,
+        '3': pdch_exploit
     }
 
     attack_choice = input("Enter the number of the attack: ")
     if attack_choice in attack_options:
-        selected_attack = attack_options[attack_choice]
-        print(f"Attack selected: {selected_attack}")
+        selected_attack = attack_choice
+        selected_attack_func = attack_options[selected_attack]
+        default_gain, default_frequency, default_timing = "10", "100", "5"
+        if selected_attack == '1':
+            default_gain, default_frequency, default_timing = "10", "100", "5"
+        elif selected_attack == '2':
+            default_gain, default_frequency, default_timing = "15", "200", "10"
+        elif selected_attack == '3':
+            default_gain, default_frequency, default_timing = "20", "300", "15"
+
+        gain = input(f"Enter gain value [{default_gain}]: ") or default_gain
+        frequency = input(f"Enter frequency value [{default_frequency}]: ") or default_frequency
+        timing = input(f"Enter timing value [{default_timing}]: ") or default_timing
     else:
         print("Invalid attack choice.")
 
 def run_attack():
-    global selected_attack
-    if selected_attack:
-        confirm = input(f"Confirm running {selected_attack} attack? (y/n): ")
+    global selected_attack_func
+    global gain, frequency, timing
+    if selected_attack_func:
+        confirm = input(f"Confirm running attack {selected_attack} with gain={gain}, frequency={frequency}, timing={timing}? (y/n): ")
         if confirm.lower() == 'y':
-            print(f"Running {selected_attack} Attack...")
-            selected_attack = None
+            selected_attack_func(gain, frequency, timing)
+            reset_selected_attack()
     else:
         print("No attack selected. Please choose an attack first.")
+
+def reset_selected_attack():
+    global selected_attack
+    global selected_attack_func
+    global gain, frequency, timing
+    selected_attack = None
+    selected_attack_func = None
+    gain = "10"
+    frequency = "100"
+    timing = "5"
 
 def main_menu():
     print("Welcome to the Program!")
@@ -56,9 +81,15 @@ def main_menu():
         print("[4] Run Attack (Not Available)")
 
 selected_attack = None
+selected_attack_func = None
+gain = "10"
+frequency = "100"
+timing = "5"
 
 def main():
     global selected_attack
+    global selected_attack_func
+    global gain, frequency, timing
     options = {
         '1': find_radio,
         '2': ssb_sweep,
@@ -75,13 +106,11 @@ def main():
             break
         
         if user_input == '3':
-            selected_attack = None  # Reset selected attack if choosing a new one
-        
-        if user_input in options:
-            if user_input == '4':
-                options[user_input]()
-            else:
-                options[user_input]()
+            options[user_input]()
+        elif user_input == '4':
+            options[user_input]()
+        elif user_input in options:
+            options[user_input]()
         else:
             print("Invalid choice. Please enter a number from 1 to 4.")
 
