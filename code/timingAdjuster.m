@@ -1,5 +1,5 @@
 
-timing = 0.02;
+timing = 0.001;
 duration = timing;
 
 
