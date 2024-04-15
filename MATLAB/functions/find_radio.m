@@ -1,7 +1,7 @@
 function output = find_radio(serial_number, gain)
     % Setup the SDR
     rx = hSDRReceiver('B210'); % Set radio type.
-    rx.SDRObj.SerialNum = '8000758';
+    rx.SDRObj.SerialNum = serial_number;
     rx.ChannelMapping = 1; % The antenna number?
 
     rx.Gain = gain; % Max 76 dBm
@@ -9,4 +9,3 @@ function output = find_radio(serial_number, gain)
 
     output = rx
 end
-

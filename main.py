@@ -2,7 +2,7 @@ from python import MATLAB_engine
 
 radio_object = None
  
-def find_radio(): # <------------------ Ikke færdig
+def find_radio():
     global radio_object
 
     radio_options = {
@@ -17,12 +17,10 @@ def find_radio(): # <------------------ Ikke færdig
         selected_radio = radio_options[radio_choice]
         
         with MATLAB_engine() as matlab:
-            radio_object = matlab.function_find_radio(selected_radio, 42)
+            radio_object = matlab.find_radio(selected_radio, 42)
 
     else:
         print("Invalid attack choice.")
-
-
 
 
 def ssb_sweep():

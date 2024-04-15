@@ -36,8 +36,25 @@ class MATLAB_engine():
         if not 0 <= gain <= 76:
             raise Exception(f"Gain-value is out of range. Allowed input is from 0 to 76, current value: gain = {gain}")
         
-        output = self.eng.function_find_radio(serial_number, gain)
+        output = self.eng.find_radio(serial_number, gain)
         return output
+    
+    # ARFCNSweep(rx, ARFCNFile, captureDurationMiliseconds)
+
+    def ARFCNSweep(self, radio_object:object, ARFCN_file, ) -> object:
+        """Takes in a radio serial number and gain and returns a matlab.object with the radio settings
+        
+        :param serial_number: The serial number of the radio you wish to connect to
+        :param gain:          The antenna gain in dBm. (range 0-76)
+        
+        """
+        if not serial_number in ["8000748", "8000758"]:
+            raise Exception(f"Unknown serial number. Allowed inputs: '8000748' or '8000758'. Current value: serial_number = {serial_number}")
+        if not 0 <= gain <= 76:
+            raise Exception(f"Gain-value is out of range. Allowed input is from 0 to 76, current value: gain = {gain}")
+        
+        output = self.eng.function_find_radio(serial_number, gain)
+        return output    
 
 if __name__ == "__main__":
     # Example of use
