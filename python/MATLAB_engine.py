@@ -17,11 +17,11 @@ class MATLAB_engine():
 
     def __init__(self) -> None:
         script_folder = "\code"
-        cwd = self.getcwd() + script_folder
-        cwd.replace('\\', '\\\\')
+        self.cwd = self.getcwd() + script_folder
+        self.cwd.replace('\\', '\\\\')
 
         self.eng = self.matlab.engine.start_matlab()
-        self.eng.cd(cwd, nargout=0)
+        self.eng.cd(self.cwd, nargout=0)
 
     def __enter__(self):
         return self
@@ -38,10 +38,38 @@ class MATLAB_engine():
         self.eng._test_device_test(nargout=0)
         # nargout er Num ARGuments OUT - eller antallet af outputs man forventer
 
+    def function_find_radio(self, serial_number:str, gain:int) -> object:
+        """Takes in a radio serial number and gain and returns a matlab.object with the radio settings
+        
+        :param serial_number: The serial number of the radio you wish to connect to
+        :param gain:          The antenna gain in dBm. (range 0-76)
+        
+        """
+        if not serial_number in ["8000748", "8000758"]:
+            raise Exception(f"Unknown serial number. Allowed inputs: '8000748' or '8000758'. Current value: serial_number = {serial_number}")
+        if not 0 <= gain <= 76:
+            raise Exception(f"Gain-value is out of range. Allowed input is from 0 to 76, current value: gain = {gain}")
+        
+        output = self.eng.function_find_radio(serial_number, gain)
+        return output
+
+class test():
+    from os import getcwd
+
+    def __init__(self) -> None:
+        script_folder = "\code"
+        self.cwd = self.getcwd() + script_folder
+        self.cwd.replace('\\', '\\\\')
+
+    def function_arfcn_sweep(self):
+        
+        with open(self.cwd + "\\ARFCNDanmark.csv") as file:
+            print(file.read())
 
 if __name__ == "__main__":
-    with MATLAB_engine() as matlab:
-        result = matlab.start_test_multiply_numbers(5, 2)
-        print(result)
+    test().function_arfcn_sweep()
+    
+    #with MATLAB_engine() as matlab:
+        #result = matlab.start_test_multiply_numbers(5, 2)
         
-        #matlab.start_device_test_script()
+        
