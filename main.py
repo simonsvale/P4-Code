@@ -1,7 +1,30 @@
 import matlab.engine
+from python import MATLAB_engine
 
-def find_radio():
-    print("Finding Radio...")
+radio_object = None
+ 
+def find_radio(): # <------------------ Ikke færdig
+    global radio_object
+
+    radio_options = {
+        '1': "8000748",
+        '2': "8000758",
+    }
+
+    print("[1] USRP B210 with Serial number 8000748")
+    print("[2] USRP B210 with Serial number 8000758")
+    radio_choice = input("Select radio: ")
+    if radio_choice in radio_options:
+        selected_radio = radio_options[radio_choice]
+        
+        with MATLAB_engine as matlab:
+            radio_object = matlab.function_find_radio(selected_radio, 42)
+
+    else:
+        print("Invalid attack choice.")
+
+
+
 
 def ssb_sweep():
     print("Performing SSB Sweep...")
