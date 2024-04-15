@@ -1,4 +1,4 @@
-function waveform = variableSampleCapture(Recv, captureDuration)
+function waveform = variableSampleCapture(rx, captureDuration)
     % Set return variable
     waveform = [-1,-1];
 
@@ -9,7 +9,7 @@ function waveform = variableSampleCapture(Recv, captureDuration)
         
         try
             lastwarn(''); % Clear warning state.
-            waveform = capture(Recv,captureDuration); % Capture wave
+            waveform = capture(rx,captureDuration); % Capture wave
             [~, warning_id] = lastwarn; % Capture potential warning
 
             % Check if the warning was the one related to sample rate.
@@ -17,12 +17,12 @@ function waveform = variableSampleCapture(Recv, captureDuration)
                 case 'sdru:SDRuReceiver:ReceiveUnsuccessful'
                     if Recv.SampleRate >= 1.1e6
                         fprintf(".");
-                        Recv.SampleRate = Recv.SampleRate - 1e6; % Negate a tiny amount
+                        Recv.SampleRate = rx.SampleRate - 1e6; % Negate a tiny amount
                         continue
                     end
                 % If serial number does not match device.
                 case 'sdru:reportSDRuStatus:UnknownStatus'
-                    disp(newline+"Device with Serial Number: "+Recv.DeviceAddress+", is not connected, aborting capture.");
+                    disp(newline+"Device with Serial Number: "+ rx.DeviceAddress+", is not connected, aborting capture.");
                     break
 
                 % If the wave was captured succesfully.
@@ -33,7 +33,7 @@ function waveform = variableSampleCapture(Recv, captureDuration)
 
         catch err
             disp("CAPTURE ERROR: "+err.identifier);
-            delete(Recv);
+            delete(rx);
             break
         end
         
