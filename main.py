@@ -1,4 +1,3 @@
-import matlab.engine
 from python import MATLAB_engine
 
 radio_object = None
@@ -17,7 +16,7 @@ def find_radio(): # <------------------ Ikke færdig
     if radio_choice in radio_options:
         selected_radio = radio_options[radio_choice]
         
-        with MATLAB_engine as matlab:
+        with MATLAB_engine() as matlab:
             radio_object = matlab.function_find_radio(selected_radio, 42)
 
     else:
