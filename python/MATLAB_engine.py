@@ -40,7 +40,6 @@ class MATLAB_engine():
         return output
 
 if __name__ == "__main__":
+    # Example of use
     with MATLAB_engine() as matlab:
-        result = matlab.start_test_multiply_numbers(5, 2)
-        
-        
+        radio_object = matlab.find_radio("8000748", 16)
