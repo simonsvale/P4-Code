@@ -21,10 +21,25 @@ To open the MATLAB project:
 |---|---|
 | matlabengine | 23.2 |    
 
-### Install Python MATLAB engine
-#### Linux
-    pip install matlabengine==23.2.3
+### How to install Python MATLAB engine
 
+#### Linux
+For Linux, is is recommended to install MATLAB engine via a virtual Python environment. 
+
+> **_NOTE:_**    that you must have install symbolic links for MATLAB in order for MATLAB engine to function. Please see the [pypi.org/project/matlabengine/](https://pypi.org/project/matlabengine/) docs for more detail.
+
+1. Setup a virtual environment called `.venv`
+    ```
+    $ python3 -m venv .venv
+    ```
+2. Activate the virtual environment
+    ```
+    $ source .venv/bin/activate
+    ```
+3. Install dependencies
+    ```
+    pip install -r python/requirements.txt
+    ```
 
 #### Windows
     cd "C:\Program Files\MATLAB\R2023b\extern\engines\python"
