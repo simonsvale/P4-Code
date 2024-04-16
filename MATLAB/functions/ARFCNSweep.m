@@ -28,15 +28,6 @@ function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile, captureDurationM
 
         % Capture waveform
         waveform = variableSampleCapture(rx, captureDurationMiliseconds);
-        
-        disp("check 2");
-        disp(waveform);
-        disp(rx.CenterFrequency);
-        disp(class(rx.CenterFrequency));
-        disp(scs);
-        disp(class(scs));
-        disp(rx.SampleRate);
-        disp(class(rx.SampleRate));
 
         try
             % Attempt to detect the SSBs on the given ARFCN frequencies.

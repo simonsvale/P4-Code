@@ -3,28 +3,37 @@ from python import MATLAB_engine
 radio_object = None
  
 def find_radio():
+    global matlabengine
     global radio_object
 
     radio_options = {
-        '1': "8000748",
-        '2': "8000758",
+        '1': None,
+        '2': "8000748",
+        '3': "8000758",
     }
-
-    print("[1] USRP B210 with Serial number 8000748")
-    print("[2] USRP B210 with Serial number 8000758")
+    print("[1] Auto")
+    print("[2] USRP B210 with Serial number 8000748")
+    print("[3] USRP B210 with Serial number 8000758")
     radio_choice = input("Select radio: ")
     if radio_choice in radio_options:
         selected_radio = radio_options[radio_choice]
-        
-        with MATLAB_engine() as matlab:
-            radio_object = matlab.find_radio(selected_radio, 42)
-
+        radio_object = matlabengine.find_radio(selected_radio, 42)
     else:
         print("Invalid attack choice.")
 
 
+
+
 def ssb_sweep():
+    global matlabengine
+    global radio_object
     print("Performing SSB Sweep...")
+    if not radio_object:
+        print("Radio not set?")
+        return
+
+    matlabengine.ARFCNSweep(radio_object, "No clue")
+
 
 def ssb_jamming(gain="10", frequency="100", timing="5"):
     print(f"Performing SSB Jamming with gain={gain}, frequency={frequency}, timing={timing}...")
@@ -97,9 +106,9 @@ def main_menu():
     print("[3] Choose Attack")
     if selected_attack:
         print("[4] Run Attack")
-    else:
-        print("[4] Run Attack (Not Available)")
 
+
+matlabengine = None
 selected_attack = None
 selected_attack_func = None
 gain = "10"
@@ -107,6 +116,10 @@ frequency = "100"
 timing = "5"
 
 def main():
+    global matlabengine
+    matlabengine = MATLAB_engine()
+    print("Matlab engine created")
+
     global selected_attack
     global selected_attack_func
     global gain, frequency, timing
@@ -121,15 +134,9 @@ def main():
         main_menu()
         user_input = input("Enter the number of your choice or 'exit' to exit: ")
 
-        if user_input.lower() == 'exit':
-            print("Exiting the program.")
-            break
+        if user_input.lower() == 'exit': exit(0)
         
-        if user_input == '3':
-            options[user_input]()
-        elif user_input == '4':
-            options[user_input]()
-        elif user_input in options:
+        if user_input in options:
             options[user_input]()
         else:
             print("Invalid choice. Please enter a number from 1 to 4.")
