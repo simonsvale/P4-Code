@@ -23,8 +23,10 @@ To open the MATLAB project:
 
 ### Install Python MATLAB engine
 #### Linux
-    $ cd /usr/local/MATLAB/R2023b/extern/engines/python/ ; python -m pip install .
+    pip install matlabengine==23.2.3
+
 
 #### Windows
     cd "C:\Program Files\MATLAB\R2023b\extern\engines\python"
     $ python -m pip install .
+
