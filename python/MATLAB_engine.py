@@ -25,10 +25,11 @@ class MATLAB_engine():
         self.eng.quit()
         
     def find_radio(self, gain:int, serial_number:str|None = None) -> object:
-        """Takes in a radio serial number and gain and returns a matlab.object with the radio settings
+        """
+        Takes in a radio serial number and gain and returns a matlab.object with the radio settings
         
         :param serial_number: The serial number of the radio you wish to connect to
-        :param gain:          The antenna gain in dBm. (range 0-76)
+        :param gain:          The antenna gain in dBm (range 0-76)
         
         """
         if not serial_number in ["8000748", "8000758", None]:
@@ -41,19 +42,21 @@ class MATLAB_engine():
     
     # ARFCNSweep(rx, ARFCNFile, captureDurationMiliseconds)
 
-    def ARFCNSweep(self, radio_object:object, ARFCN_file, ) -> object:
-        """Takes in a radio serial number and gain and returns a matlab.object with the radio settings
-        
-        :param serial_number: The serial number of the radio you wish to connect to
-        :param gain:          The antenna gain in dBm. (range 0-76)
-        
+    def ARFCNSweep(self, radio_object:object, ARFCN_file:str, gain:int|None = None) -> object:
         """
-        if not serial_number in ["8000748", "8000758"]:
-            raise Exception(f"Unknown serial number. Allowed inputs: '8000748' or '8000758'. Current value: serial_number = {serial_number}")
-        if not 0 <= gain <= 76:
-            raise Exception(f"Gain-value is out of range. Allowed input is from 0 to 76, current value: gain = {gain}")
+        Takes in a radio object and uses it to scan entries in the ARFCN-list also attached
         
-        output = self.eng.function_find_radio(serial_number, gain)
+        :param radio_object:    The radio_object (rx object) to use when scanning the 
+        :param ARFCN_File:      A list of which ARFCNs to scan for, formatted as a string with \\n as seperator
+        :param gain:            Override for the antenna gain in dBm (range 0-76). If none is chosen, the one configured in the radio_object is used
+        """
+        #
+        # <--------- Some code should be here, to configure paramters used in ARFCN Sweep
+        #
+        if not 0 <= gain <= 76 or None:
+            raise Exception(f"Gain-value is out of range. Allowed input is from 0 to 76 or None, current value: gain = {gain}")        
+        
+        output = self.eng.ARFCNSweep()
         return output    
 
 if __name__ == "__main__":
