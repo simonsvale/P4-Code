@@ -3,6 +3,8 @@
 function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile, captureDurationMiliseconds)
     disp("Performing ARFCN sweep!");
 
+    captureDurationMiliseconds = milliseconds(captureDurationMiliseconds);
+
     % Supress warning about table.
     warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
 
@@ -27,6 +29,15 @@ function [SSBFrequencies, msOffset] = ARFCNSweep(rx, ARFCNFile, captureDurationM
         % Capture waveform
         waveform = variableSampleCapture(rx, captureDurationMiliseconds);
         
+        disp("check 2");
+        disp(waveform);
+        disp(rx.CenterFrequency);
+        disp(class(rx.CenterFrequency));
+        disp(scs);
+        disp(class(scs));
+        disp(rx.SampleRate);
+        disp(class(rx.SampleRate));
+
         try
             % Attempt to detect the SSBs on the given ARFCN frequencies.
             [SSB, offset] = approximateSSBPeriodicity(waveform, rx.CenterFrequency, scs, rx.SampleRate, false);
