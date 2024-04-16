@@ -1,6 +1,14 @@
 % Setup the SDR
 rx = hSDRReceiver('B210'); % Set radio type.
-rx.SDRObj.SerialNum = findsdru().SerialNum;
+
+% Get serial number
+radio = findsdru();
+disp(radio);
+rx.SDRObj.SerialNum = radio(1).SerialNum;
+
+% Reset variable to avoid problems
+clear radio;
+
 rx.ChannelMapping = 1; % The antenna number?
 
 rx.Gain = 76; % Max 76 dBm
