@@ -3,7 +3,6 @@ rx = hSDRReceiver('B210'); % Set radio type.
 
 % Get serial number
 radio = findsdru();
-disp(radio);
 rx.SDRObj.SerialNum = radio(1).SerialNum;
 
 % Reset variable to avoid problems
@@ -24,9 +23,8 @@ rx.SampleRate = 31e6; % max ~41 MHz, theoretically 61.44 MHz.
 % tx.EnableBurstMode = false;
 
 
-
 % Perform GSCN sweep and detect SSB
-[SSB, offset] = ARFCNSweep(rx, 'ARFCNDanmark.xlsx', milliseconds(40));
+[SSB, offset] = ARFCNSweep(rx, 'ARFCNDanmark.xlsx', 40);
 
 % DEBUG
 disp("Center frequency [GHz]: ");
