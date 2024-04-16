@@ -24,15 +24,15 @@ class MATLAB_engine():
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.eng.quit()
         
-    def find_radio(self, serial_number:str, gain:int) -> object:
+    def find_radio(self, gain:int, serial_number:str|None = None) -> object:
         """Takes in a radio serial number and gain and returns a matlab.object with the radio settings
         
         :param serial_number: The serial number of the radio you wish to connect to
         :param gain:          The antenna gain in dBm. (range 0-76)
         
         """
-        if not serial_number in ["8000748", "8000758"]:
-            raise Exception(f"Unknown serial number. Allowed inputs: '8000748' or '8000758'. Current value: serial_number = {serial_number}")
+        if not serial_number in ["8000748", "8000758", None]:
+            raise Exception(f"Unknown serial number. Allowed inputs: '8000748', '8000758', or None. Current value: serial_number = {serial_number}")
         if not 0 <= gain <= 76:
             raise Exception(f"Gain-value is out of range. Allowed input is from 0 to 76, current value: gain = {gain}")
         
