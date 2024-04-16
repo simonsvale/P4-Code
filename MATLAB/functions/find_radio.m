@@ -1,21 +1,19 @@
-function rx = find_radio(serialNumber, gain)
-    % Setup the SDR
+function objects = find_radio(serialNumber)
+    % Setup the SDR-objects
     rx = hSDRReceiver('B210'); % Set radio type.
-    
+    tx = comm.SDRuTransmitter(Platform='B210');
+
     % If a serial number is entered or it is empty.
     switch serialNumber
         case ''
             % Find radio
             radio = findsdru();
             rx.SDRObj.SerialNum = radio(1).SerialNum;
+            tx.SDRObj.SerialNum = radio(1).SerialNum;
             clear radio;
         otherwise
             rx.SDRObj.SerialNum = serialNumber;
+            tx.SDRObj.SerialNum = serialNumber;
     end
-
-    % Set the rest of the variables.
-    rx.ChannelMapping = 1; % The antenna number?
-
-    rx.Gain = gain; % Max 76 dBm
-    rx.SampleRate = 31e6; % max ~41 MHz, theoretically 61.44 MHz.
+    objects = {rx, tx};
 end
