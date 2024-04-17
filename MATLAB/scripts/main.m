@@ -1,3 +1,7 @@
+
+scheduledTransmission(2.11585e9, 40000, 0.01);
+return
+
 % Setup the SDR
 rx = hSDRReceiver('B210'); % Set radio type.
 
