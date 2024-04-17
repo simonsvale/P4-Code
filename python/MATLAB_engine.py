@@ -1,6 +1,6 @@
 import os
 import matlab.engine
-from matlab import *
+from matlab import double
 
 
 class MATLAB_engine():
