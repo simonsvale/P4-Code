@@ -1,4 +1,3 @@
-#from python import MATLAB_engine
 from .RadioController import RadioController
 
 class CLI:
@@ -13,7 +12,6 @@ class CLI:
         
         # self.matlab_engine
         self.radio_object = None
-        
         
         
         # self.rc.discover_radio(serial_number:str)-> (rx:object, tx:object)
