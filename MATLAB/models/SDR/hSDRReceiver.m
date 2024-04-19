@@ -212,7 +212,6 @@ classdef hSDRReceiver < hSDRBase
         %
         % TIMESTAMP is the timestamp of requesting data capture from
         % the hardware.
-
             if isduration(len)
                 len = ceil(seconds(len)*obj.SampleRate);
             end
@@ -220,12 +219,14 @@ classdef hSDRReceiver < hSDRBase
             if matches(obj.DeviceName, obj.ListOfOtherTransceivers)
                 [data,mData] = capture(obj.SDRObj,len,'EnableOversizeCapture',true);
             elseif matches(obj.DeviceName, obj.ListOfWTConfigurations)
-                [data,mData.Date] = capture(obj.SDRObj,len);
+                [data,mData] = capture(obj.SDRObj,len);
             else % USRP and RTL-SDR
                  % Sometimes USRPs throw error message during burst capture.
                  % Throw as warning instead and supply zeros on output.
                 try
+                    msTimestamp = clock; % Take ms accurate timestamp.
                     [data,mData] = capture(obj.SDRObj,len);
+                    mData.Date = msTimestamp; % Set the date to the accurate timestamp.
                 catch e
                     warning(e.identifier,'%s',e.message)
                     release(obj)
@@ -234,7 +235,7 @@ classdef hSDRReceiver < hSDRBase
                 end
 
             end
-            timestamp = datetime(mData.Date);
+            timestamp = mData.Date;
         end
 
     end
@@ -251,7 +252,8 @@ classdef hSDRReceiver < hSDRBase
 
               case obj.ListOfUSRPs
                 sdrObj = comm.SDRuReceiver('Platform', obj.DeviceName);
-                obj.findUSRP(deviceName,sdrObj);
+                %obj.findUSRP(deviceName,sdrObj); % This is done
+                %externally, for more control over the selection of a radio.
               case obj.ListOfWTConfigurations
                 sdrObj = basebandReceiver(deviceName);
             end
