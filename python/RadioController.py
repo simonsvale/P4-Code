@@ -3,7 +3,7 @@ import matlab.engine
 from matlab import double
 
 
-class MATLAB_engine():
+class RadioController():
     """
     Call this class as a with-object to ensure the connection is closed correctly:
     >>> with MATLAB_engine() as matlab:
@@ -39,7 +39,7 @@ class MATLAB_engine():
 
 if __name__ == "__main__":
     # Example of use
-    with MATLAB_engine() as matlab:
+    with RadioController() as matlab:
         radio_object = matlab.find_radio()
         print("Found radio")
         matlab.ARFCNSweep(radio_object, "Idk")
