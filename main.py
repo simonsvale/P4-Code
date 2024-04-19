@@ -1,1 +1,4 @@
-# Instansier cli og cli.run()
+from python import CLI
+
+if __name__ == "__main__":
+    CLI().run()
