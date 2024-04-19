@@ -60,7 +60,7 @@ class CLI:
         radio_choice = input("Select radio: ")
         if radio_choice in radio_options:
             selected_radio = radio_options[radio_choice]
-            self.radio_object = self.rc.discover_radio(platform='USRP', serial_number=selected_radio)
+            self.radio_object = self.rc.discover_radio(platform='B210', serial_number=selected_radio)
             print(f"Radio {selected_radio} selected.")
         else:
             print("Invalid radio choice.")
