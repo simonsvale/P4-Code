@@ -1,6 +1,6 @@
 import os
 import io
-
+import nrarfcn as nr
 # Matlab
 import matlab.engine
 
@@ -15,12 +15,12 @@ class RadioController():
         # Start the matlab by either finding a session or creating a new engine
         # To start session: Open matlab -> Command window -> "matlab.engine.shareEngine"
         if matlab.engine.find_matlab():
-            print("Found matlab session", matlab.engine.find_matlab())
+            print(f"Attaching to matlab shared session | Sessions={list(matlab.engine.find_matlab())}")
             self.matlab_engine = matlab.engine.connect_matlab(matlab.engine.find_matlab()[0])
         else:
             print("Starting matlab engine")
             self.matlab_engine = matlab.engine.start_matlab()
-
+        
         # Add all subfolders from MATLAB to working directory
         matlab_working_directory = os.path.join(os.getcwd(), "MATLAB")
         self.matlab_engine.addpath(self.matlab_engine.genpath(matlab_working_directory), nargout=0)
@@ -36,7 +36,7 @@ class RadioController():
         out = io.StringIO()
         err = io.StringIO()
         radios = self.matlab_engine.configureSDR(platform, serial_number, nargout=2, stdout=out, stderr=err)
-        self.validateMatlabOutput(out, err)
+        self.assert_matlab_exception(out, err)
         self.rx = radios[0]
         self.tx = radios[1]
         self.radioFound = True
@@ -44,6 +44,7 @@ class RadioController():
     def frequency_sweep(self, frequencies: list[int]):
         if not self.radioFound:
             raise Exception("Radio not found")
+        # self.matlab_engine.frequency_sweep(frequencies)
 
 
     def SSB_attack(self, frequency: int, attack_mode: AttackMode=AttackMode.SMART) -> None:
@@ -55,7 +56,7 @@ class RadioController():
 
 
     @staticmethod
-    def validateMatlabOutput(out: io.StringIO, err: io.StringIO):
+    def assert_matlab_exception(out: io.StringIO, err: io.StringIO):
         if err.getvalue():
             raise Exception(err.getvalue())
         if "Warning:" in out.getvalue():
@@ -68,8 +69,8 @@ class RadioController():
     def ARFCN_to_frequency(ARFCNs: list[int]) -> list[int]:
         """ Convert ARFCN to frequency in Hertz
         
-        >>> RadioController.ARFCN_to_frequency([12345])
-        [61725000]
+        >>> RadioController.ARFCN_to_frequency([155050, 371570, 423170, 628032, 628704, 630048, 636768, 647328])
+        [775250000, 1857850000, 2115850000, 3420480000.0, 3430560000.0, 3450720000.0, 3551520000.0, 3709920000.0]
         """
         res = []
         for ARFCN in ARFCNs:
@@ -86,52 +87,17 @@ class RadioController():
                 nRefOffset = 2016667
                 deltaFGlobal = 60000
             else:
-                raise ValueError(f"The ARFCN number: {ARFCN} is invalid!")
+                raise ValueError(f"ARFCN must be between 1 and 3279165")
 
             # Calculate frequency
             centerFrequency = fRefOffset + (deltaFGlobal * (ARFCN - nRefOffset))
             res.append(centerFrequency)
         return res
 
-
     @staticmethod
     def GSCN_to_frequency(GSCNs: list[int]) -> list[int]:
-        raise NotImplementedError
-    
-    """
-        function getSSRef(gscn) {
-        var retRes = -1;
-        
-        if ((gscn >= 2) && (gscn <= 7498)) {
-            retRes = (gscn/3) * 1.200;
-        } else if ((gscn >= 7499) && (gscn <= 22255)) {
-            retRes = 3000 + (gscn - 7499) * 1.44;
-        } else if ((gscn >= 22256) && (gscn <= 26639)) {
-            retRes = 24250.08 + (gscn - 22256) * 17.28;
-        } else {
-            return - 1;
-        }
-        return Math.round(retRes*100)/100;
-        }
+        return [int(nr.get_frequency_by_gscn(gscn)*1_000_000) for gscn in GSCNs]
 
-        res = []
-        for GSCN in GSCNs:
-            if GSCN >= 2 and GSCN <= 7498:
-                pass
-
-            elif GSCN >= 7499 and GSCN <= 22255: 
-                pass
-                
-            elif gscn >= 22256 and GSCN <= 26639:
-                pass
-                
-            else:
-                raise ValueError(f"The GSCN number: {GSCN} is invalid!")
-            
-            centerFrequency = round()
-                
-            res.append()
-    """
 
 
 if __name__ == "__main__":
@@ -139,11 +105,8 @@ if __name__ == "__main__":
     # import doctest
     # doctest.testmod()
     
-    # Example of use
     RC = RadioController()
     RC.discover_radio()
-    print("Found radio")
     f = RC.ARFCN_to_frequency([155050, 371570, 423170, 628032, 628704, 630048, 636768, 647328])
-    print("Performing ARFCN sweep with frequencies", f)
+    print("Performing ARFCN sweep with frequencies", f[:3])
     RC.frequency_sweep(f)
-    
