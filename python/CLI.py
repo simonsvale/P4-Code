@@ -1,5 +1,5 @@
-from python import MATLAB_engine
-from python import RadioController
+#from python import MATLAB_engine
+from .RadioController import RadioController
 
 class CLI:
 
@@ -11,7 +11,7 @@ class CLI:
         self.frequency = "100"
         self.timing = "5"
         
-        self.matlab_engine
+        # self.matlab_engine
         self.radio_object = None
         
         
