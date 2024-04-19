@@ -1,0 +1,1 @@
+from .MATLAB_engine import MATLAB_engine # Exposer MATLAB_engine-klassen, så man kan kalde den direkte fra modulet
