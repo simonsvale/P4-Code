@@ -7,7 +7,7 @@ def find_radio():
     global radio_object
 
     radio_options = {
-        '1': None,
+        '1': "",
         '2': "8000748",
         '3': "8000758",
     }
@@ -17,7 +17,7 @@ def find_radio():
     radio_choice = input("Select radio: ")
     if radio_choice in radio_options:
         selected_radio = radio_options[radio_choice]
-        radio_object = matlabengine.find_radio(selected_radio, 42)
+        radio_object = matlabengine.find_radio(selected_radio)
     else:
         print("Invalid attack choice.")
 
