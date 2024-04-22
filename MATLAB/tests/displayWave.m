@@ -2,8 +2,8 @@
 rx = hSDRReceiver('B210'); % Set radio type.
 
 % Get serial number
-%radio = findsdru();
-%rx.SDRObj.SerialNum = radio(1).SerialNum;
+radio = findsdru();
+rx.SDRObj.SerialNum = radio(1).SerialNum;
 
 % Reset variable to avoid problems
 clear radio;
