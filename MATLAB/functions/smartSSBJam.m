@@ -2,7 +2,7 @@ function smartSSBJam(rx, tx, centerFrequency, duration)
     
     tic;
     % Check if any SSBs exists on the given center frequency.
-    [frequency, timestamp] = frequencySweep(rx, centerFrequency, 60);
+    [frequency, timestamp] = frequencySweep(rx, centerFrequency, 30);
     
     % Check if no SSBs were found.
     if (isempty(frequency))
@@ -11,52 +11,64 @@ function smartSSBJam(rx, tx, centerFrequency, duration)
     end
 
     % Setup jamming signal.
-    waveSampleRate = 10000;
-
-    fmcwWaveform = phased.FMCWWaveform('SampleRate', 10000, ...
-    'SweepTime', 0.005, ...
-    'SweepBandwidth', 100000, ...
-    'SweepDirection', 'Triangle', ...
-    'SweepInterval', 'Positive', ...
-    'NumSweeps', 1);
+    sineWaves = dsp.SineWave('Frequency', centerFrequency, ...
+    'Amplitude', 1, ...
+    'PhaseOffset', 0, ...
+    'SampleRate', 10e3 , ...
+    'ComplexOutput', 0, ...
+    'SamplesPerFrame', 200e3);
 
     % Generation
-    waveform = fmcwWaveform();
+    waveform = sineWaves();
+
+    waveform = resample(waveform, 1000, tx.MasterClockRate/500);
+
+    tx.ChannelMapping = 1;
+    tx.LocalOscillatorOffset = 1;
+    tx.PPSSource = 'Internal';
+    tx.ClockSource = 'Internal';
+    tx.InterpolationFactor = 1;
+    tx.TransportDataType = 'int16';
+    tx.EnableBurstMode = false;
+
+    waveform = repmat(waveform, 1, 1);
     
     % Configure transmission, is needed due to the FPGA.
     disp("Configuring transmission!")
     tx.CenterFrequency = centerFrequency;
-
+    
+    % Initial pause is needed for the SDR to configure correctly. 
     pause(5);
     tx(waveform);
     pause(5);
+    
+    % Setup tranmission scheduler.
+    transmissionTimer = timer;
+    transmissionTimer.ExecutionMode = 'fixedRate';
+    transmissionTimer.Period = 0.02;
+    transmissionTimer.TimerFcn = @(~,~) transmitJamSignal(tx, waveform);
+    transmissionTimer.TasksToExecute = 60*duration;
     
     % Get approx time since function run.
     configureTime = floor(toc);
 
     % Adjust transmission timing to timestamp.
-    transmissionPoint = datetime(timestamp, 'ConvertFrom', 'datenum') + seconds(configureTime+5);
+    transmissionPoint = datenum(datetime(timestamp, 'ConvertFrom', 'datenum') + seconds(configureTime));
 
     % Wait for the new transmission point.
-    while(datetime(clock,'Format','uuuu-MM-dd HH:mm:ss.SSS')<=transmissionPoint)
+    while(datenum(clock)<=transmissionPoint)
     end
-    
-    %DEBUG
-    %disp("Timestamp: "+datestr(timestamp,'YYYY/mm/dd HH:MM:SS:FFF'));
-    %disp("SendTime: "+datestr(clock,'YYYY/mm/dd HH:MM:SS:FFF'));
 
-    for i = 1:duration
-        tic;
-        while toc < 0.01
-        tx(waveform);
-        end
+    % transmit jamming signal
+    start(transmissionTimer);
+
+    disp("Starting transmission!");
     
-        tic;
-        while toc < 0.02
-        end
-    end
+    % Wait for the jamming to stop.
+    pause(duration);
 
     disp("Done Transmitting!");
+    stop(transmissionTimer)
 
 end
 

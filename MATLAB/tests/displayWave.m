@@ -14,14 +14,14 @@ rx.Gain = 76; % Max 76 dBm
 rx.SampleRate = 31e6; % max ~41 MHz, theoretically 61.44 MHz.
 
 % Convert ARFCN to center frequency.
-rx.CenterFrequency = 3.70992e9;
+rx.CenterFrequency = 2.11585e9;
 
 % Set subcarrier spacing case from center frequency.
 scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
 scs =  scsOptions(1);
 
 % Capture waveform
-waveform = variableSampleCapture(rx, milliseconds(60));
+waveform = variableSampleCapture(rx, milliseconds(300));
 
 nrbSSB = 10; % Number of resource blocks in an SSB
 scsNumeric = double(extract(scs,digitsPattern));
