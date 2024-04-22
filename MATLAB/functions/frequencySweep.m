@@ -6,6 +6,9 @@ function [SSBFrequencies, firstSSBTimestamps] = frequencySweep(rx, centerFrequen
     % Get amount of center frequencies.
     centerFrequenciesAmount = length(centerFrequencies);
     
+    % Capture a small amount to configure the SDR.
+    capture(rx, captureDuration);
+    
     % Create empty arrays for storing confirmed SSB frequencies and timestamps.
     SSBFrequencies = [];
     firstSSBTimestamps = [];
