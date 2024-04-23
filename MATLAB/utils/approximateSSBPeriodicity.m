@@ -2,7 +2,7 @@ function [detectedSSB, msOffset] = approximateSSBPeriodicity(waveform,centerFreq
 % FINDSSB returns a logical value that depends on if WAVEFORM contains a
 % valid SSB.
     scsNumeric = double(extract(scs,digitsPattern));
-    searchBW = 3*scsNumeric;
+    searchBW = 6*scsNumeric;
 
     % Important in selecting the strongest SSB.
     [correctedWaveform,~,NID2] = hSSBurstFrequencyCorrect(waveform,scsNumeric,sampleRate,searchBW);
