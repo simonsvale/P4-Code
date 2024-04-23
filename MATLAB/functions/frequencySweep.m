@@ -28,7 +28,7 @@ function [SSBFrequencies, firstSSBTimestamps] = frequencySweep(rx, centerFrequen
 
         try
             % Attempt to detect the SSBs on the frequencies.
-            [SSB, offset] = approximateSSBPeriodicity(waveform, rx.CenterFrequency, scs, rx.SampleRate, false);
+            [SSB, offset] = approximateSSBPeriodicity(waveform, rx.CenterFrequency, scs, rx.SampleRate);
             if SSB
                 % If an SSB is found add its frequency to the return array.
                 SSBFrequencies(end+1) = rx.CenterFrequency;

@@ -1,8 +1,7 @@
 function SSBDurationSeconds = getSSBDuration(centerFrequency)
-
+    
+    % Get subcarrier spacing.
     scs = hSynchronizationRasterInfo.getSCSOptions(centerFrequency);
-
-    disp(scs);
     
     % See table 16.1 on page 337 in 
     % "5G NR - The next generation wireless access technology."

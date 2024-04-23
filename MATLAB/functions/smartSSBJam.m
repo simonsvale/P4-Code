@@ -11,18 +11,18 @@ function smartSSBJam(rx, tx, centerFrequency, duration)
     end
     
     % Setup jamming signal.
-    sineWaves = dsp.SineWave('Frequency', centerFrequency, ...
+    sineWave = dsp.SineWave('Frequency', centerFrequency, ...
     'Amplitude', 1, ...
     'PhaseOffset', 0, ...
     'SampleRate', 10e3 , ...
     'ComplexOutput', 0, ...
     'SamplesPerFrame', 200e3);
 
-    % Generation
-    waveform = sineWaves();
-
+    % Generation of signal.
+    waveform = sineWave();
     waveform = resample(waveform, 1000, tx.MasterClockRate/500);
-
+    
+    % Set rest of transmission settings.
     tx.ChannelMapping = 1;
     tx.LocalOscillatorOffset = 1;
     tx.PPSSource = 'Internal';
@@ -47,8 +47,10 @@ function smartSSBJam(rx, tx, centerFrequency, duration)
     transmissionTimer.ExecutionMode = 'fixedRate';
     transmissionTimer.Period = 0.02;
     
-    % Get the SSB time duration
+    % Needed as the USRP B210, cannot transmit with the desired periodicity.
     constantIncrease = 15;
+
+    % Get the SSB time duration.
     SSBDuration = constantIncrease*getSSBDuration(centerFrequency);
 
     transmissionTimer.TimerFcn = @(~,~) transmitJamSignal(tx, waveform, SSBDuration);
@@ -64,7 +66,7 @@ function smartSSBJam(rx, tx, centerFrequency, duration)
     while(datenum(clock)<=transmissionPoint)
     end
 
-    % transmit jamming signal
+    % transmit jamming signal.
     start(transmissionTimer);
 
     disp("Starting transmission!");
