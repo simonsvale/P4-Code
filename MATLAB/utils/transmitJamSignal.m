@@ -1,7 +1,7 @@
-function transmitJamSignal(tx, waveform)
+function transmitJamSignal(tx, waveform, durationSeconds)
     % Transmit for the duration of the SSB.
     tic;
-    while toc < 0.005
+    while toc < durationSeconds
         tx(waveform);
     end
 

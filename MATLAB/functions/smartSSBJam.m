@@ -3,13 +3,13 @@ function smartSSBJam(rx, tx, centerFrequency, duration)
     tic;
     % Check if any SSBs exists on the given center frequency.
     [frequency, timestamp] = frequencySweep(rx, centerFrequency, 30);
-    
+
     % Check if no SSBs were found.
     if (isempty(frequency))
         disp("No SSBs found on the given frequency.");
         return
     end
-
+    
     % Setup jamming signal.
     sineWaves = dsp.SineWave('Frequency', centerFrequency, ...
     'Amplitude', 1, ...
@@ -46,10 +46,15 @@ function smartSSBJam(rx, tx, centerFrequency, duration)
     transmissionTimer = timer;
     transmissionTimer.ExecutionMode = 'fixedRate';
     transmissionTimer.Period = 0.02;
-    transmissionTimer.TimerFcn = @(~,~) transmitJamSignal(tx, waveform);
-    transmissionTimer.TasksToExecute = 60*duration;
     
-    % Get approx time since function run.
+    % Get the SSB time duration
+    constantIncrease = 15;
+    SSBDuration = constantIncrease*getSSBDuration(centerFrequency);
+
+    transmissionTimer.TimerFcn = @(~,~) transmitJamSignal(tx, waveform, SSBDuration);
+    transmissionTimer.TasksToExecute = 10000*floor(duration);
+    
+    % Get approx time since this function was called.
     configureTime = floor(toc);
 
     % Adjust transmission timing to timestamp.
