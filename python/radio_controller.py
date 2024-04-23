@@ -25,7 +25,7 @@ class RadioController():
         matlab_working_directory = os.path.join(os.getcwd(), "MATLAB")
         self.matlab_engine.addpath(self.matlab_engine.genpath(matlab_working_directory), nargout=0)
         
-        self.radioFound: bool = False
+        self.radio_found: bool = False
 
     def __del__(self) -> None:
         # MATLAB engine must be quit before exit
@@ -33,18 +33,49 @@ class RadioController():
         self.matlab_engine.quit()
             
     def discover_radio(self, platform: str="B210", serial_number: str = "") -> None:
+        # Setup input and output stream for warnings from MATLAB
         out = io.StringIO()
         err = io.StringIO()
+
+        # Call MATLAB engine
         radios = self.matlab_engine.configureSDR(platform, serial_number, nargout=2, stdout=out, stderr=err)
+
+        # Check for any warinings from MATLAB engine 
         self.assert_matlab_exception(out, err)
+
+        # Convert the returned values from MATLAB engine to tx, rx radio
         self.rx = radios[0]
         self.tx = radios[1]
-        self.radioFound = True
+        
+        # We now have a connected SDR radio
+        self.radio_found = True
 
     def frequency_sweep(self, frequencies: list[int]):
-        if not self.radioFound:
+        if not self.radio_found:
             raise Exception("Radio not found")
-        # self.matlab_engine.frequency_sweep(frequencies)
+        
+        SSB_frequencies, first_SSB_time_stamp = self.matlab_engine.frequencySweep(self.rx, matlab.double(frequencies), matlab.double(40), nargout=2)
+
+        print(type(SSB_frequencies), SSB_frequencies)
+
+        # if type(SSB_frequencies) == matlab.double:
+        
+        # If MATLAB finds only one SSB
+        if type(SSB_frequencies) == float:
+            print("Only one SSB found")
+            SSB_frequencies = [int(SSB_frequencies)]
+            first_SSB_time_stamp = [first_SSB_time_stamp]
+        # If MATLAB does not found any SSBs. the type is double and the size is 1 by 1
+        elif type(SSB_frequencies) == matlab.double and SSB_frequencies.size == (0,0):
+            print("No SSBS found")
+            SSB_frequencies = []
+        # Else MATLAB has found multiple SSBs
+        else:
+            # Convert matlab double(array) to int[]
+            SSB_frequencies = [int(x) for _, x in enumerate(SSB_frequencies[0])]
+            first_SSB_time_stamp = first_SSB_time_stamp[0]
+        
+        return (SSB_frequencies, first_SSB_time_stamp)
 
 
     def SSB_attack(self, frequency: int, attack_mode: AttackMode=AttackMode.SMART) -> None:
@@ -91,7 +122,7 @@ class RadioController():
 
             # Calculate frequency
             centerFrequency = fRefOffset + (deltaFGlobal * (ARFCN - nRefOffset))
-            res.append(centerFrequency)
+            res.append(int(centerFrequency))
         return res
 
     @staticmethod
@@ -107,6 +138,8 @@ if __name__ == "__main__":
     
     RC = RadioController()
     RC.discover_radio()
-    f = RC.ARFCN_to_frequency([155050, 371570, 423170, 628032, 628704, 630048, 636768, 647328])
-    print("Performing ARFCN sweep with frequencies", f[:3])
-    RC.frequency_sweep(f)
+    f = RC.ARFCN_to_frequency([155050, 371570, 423170, 628032, 628704, 630048, 636768, 647328])[:1]
+    print("Performing frequency sweep:", f)
+    (freq, timestamps) = RC.frequency_sweep(f)
+    print("Frequencies:", freq)
+    print("Timestamps:", timestamps)
