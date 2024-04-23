@@ -1,15 +1,20 @@
-function waveform = variableSampleCapture(rx, captureDuration)
+function [waveform, timestamp] = variableSampleCapture(rx, captureDuration)
     % Set return variable
     waveform = [-1,-1];
 
     warning('off','sdru:SDRuReceiver:ReceiveUnsuccessful'); % turn off specific warning
     warning('off','sdru:reportSDRuStatus:UnknownStatus');
-
+    
     while true
         
         try
-            lastwarn(''); % Clear warning state.
-            waveform = capture(rx,captureDuration); % Capture wave
+            % Clear warning state.
+            lastwarn('');
+
+            % Get timestamp and capture wave.
+            [waveform,timestamp] = capture(rx,captureDuration);
+            disp("Timestamp: "+datestr(timestamp,'YYYY/mm/dd HH:MM:SS:FFF'));
+
             [~, warning_id] = lastwarn; % Capture potential warning
 
             % Check if the warning was the one related to sample rate.

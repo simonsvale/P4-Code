@@ -26,4 +26,10 @@ function [rx, tx] = configureSDR(platform, serialNumber)
     rx.Gain = 76;
     tx.Gain = 76;
 
+    rx.SDRObj.MasterClockRate = 31e6;
+    tx.MasterClockRate = 31e6;
+
 end
+
+
+

@@ -15,7 +15,7 @@ masterClockRate = 5000000;
 interpolationFactor = 500;
 usrpTx = comm.SDRuTransmitter(Platform='B210');
 usrpTx.SerialNum ='8000758';
-usrpTx.CenterFrequency = 3.70992e9;
+usrpTx.CenterFrequency = 2.11585e9;
 usrpTx.Gain = 76;
 usrpTx.ChannelMapping = 1;
 usrpTx.LocalOscillatorOffset = 1;
