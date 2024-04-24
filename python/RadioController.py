@@ -4,7 +4,7 @@ import io
 # Matlab
 import matlab.engine
 
-from attack_mode import AttackMode
+from .attack_mode import AttackMode
 
 
 

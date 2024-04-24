@@ -1,4 +1,6 @@
 from .RadioController import RadioController
+#from attack_mode import AttackMode
+import csv
 
 class CLI:
 
@@ -66,15 +68,37 @@ class CLI:
             print("Invalid radio choice.")
 
     def _frequency_sweep(self) -> None:
-        print("Performing frequency sweep...")
-        if not self.radio_object:
-            print("Radio not set?")
+        # Prompt user to select a country
+        print("Select a country for frequency sweep:")
+        countries = ['Denmark','Germany','Norway','Sweden','Finland','Russia']
+        for i, country in enumerate(countries, 1):
+            print(f"[{i}] {country}")
+        try:
+            choice = int(input("Enter your choice: "))
+            country = countries[choice - 1]
+        except (IndexError, ValueError):
+            print("Invalid country name or not in list. Please try again.")
             return
-        
-        # Assuming ARFCN_to_frequency and frequency_sweep are static methods of RadioController
-        frequencies = self.rc.ARFCN_to_frequency([]) # Tom liste eller skal der være tilsvarende pladser til frekvenserne?
-        frequencies, timestamps = self.rc.frequency_sweep(frequencies)
-        print("Sweep completed. Frequencies:", frequencies, "Timestamps:", timestamps)
+
+        # Read frequencies from the corresponding CSV file
+        try:
+            with open(f'MATLAB/data/ARFCN/{country}.csv', mode='r') as file:
+                csv_reader = csv.reader(file)
+                next(csv_reader)  # Skips the header row
+                frequencies = [int(row[0]) for row in csv_reader]
+                print(frequencies)
+        except Exception as e:
+            print(f"Failed to read the file: {str(e)}")
+            return
+
+        # Perform frequency sweep with the read frequencies
+        try:
+            SSB_frequencies, timestamps = self.rc.frequency_sweep(frequencies)
+            print("Frequency Sweep Results:")
+            print("Frequencies:", SSB_frequencies)
+            print("Timestamps:", timestamps)
+        except Exception as e:
+            print(f"Error during frequency sweep: {str(e)}")
         
 
     def _choose_attack(self) -> None:
