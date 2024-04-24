@@ -55,10 +55,6 @@ class RadioController():
             raise Exception("Radio not found")
         
         SSB_frequencies, first_SSB_time_stamp = self.matlab_engine.frequencySweep(self.rx, matlab.double(frequencies), matlab.double(40), nargout=2)
-
-        print(type(SSB_frequencies), SSB_frequencies)
-
-        # if type(SSB_frequencies) == matlab.double:
         
         # If MATLAB finds only one SSB
         if type(SSB_frequencies) == float:
@@ -78,9 +74,19 @@ class RadioController():
         return (SSB_frequencies, first_SSB_time_stamp)
 
 
-    def SSB_attack(self, frequency: int, attack_mode: AttackMode=AttackMode.SMART) -> None:
-        raise NotImplementedError
+    def SSB_attack(self, frequency: int, duration: int, attack_mode: AttackMode=AttackMode.SMART) -> None:
         print("SSB attacking mode:", attack_mode)
+
+        if attack_mode == AttackMode.SMART:
+            self.matlab_engine.smartSSBJam(self.rx, self.tx, matlab.double(frequency), duration, nargout=0) 
+        elif attack_mode == AttackMode.DUMB:
+            self.matlab_engine.dumbSSBJam(self.rx, self.tx, matlab.double(frequency), duration, nargout=0)
+        elif attack_mode == AttackMode.SPOOF:
+            pass
+        else:
+            raise ValueError("Unknown attack mode!")
+    
+        
     
     def PRACH_jam(self):
         raise NotImplementedError
@@ -138,8 +144,11 @@ if __name__ == "__main__":
     
     RC = RadioController()
     RC.discover_radio()
-    f = RC.ARFCN_to_frequency([155050, 371570, 423170, 628032, 628704, 630048, 636768, 647328])[:1]
-    print("Performing frequency sweep:", f)
-    (freq, timestamps) = RC.frequency_sweep(f)
-    print("Frequencies:", freq)
-    print("Timestamps:", timestamps)
+    
+    # f = RC.ARFCN_to_frequency([155050, 371570, 423170, 628032, 628704, 630048, 636768, 647328])
+    # print("Performing frequency sweep:", f)
+    # (freq, timestamps) = RC.frequency_sweep(f)
+    # print("Frequencies:", freq)
+    # print("Timestamps:", timestamps)
+    
+    RC.SSB_attack(1857850000, 10, AttackMode.DUMB)
