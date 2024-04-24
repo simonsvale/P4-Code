@@ -1,4 +1,4 @@
-function tx_updated = configure_transmission(tx_object, center_frequency, gain)
+function tx = configure_transmission(tx, center_frequency, gain)
     tx.CenterFrequency = 1.230e9;
     tx.Gain = gain;
     tx.ChannelMapping = 1;
@@ -12,10 +12,7 @@ function tx_updated = configure_transmission(tx_object, center_frequency, gain)
 
     waveform = repmat(waveform, 1, 1);
 
-    % This is needed, to configure the radio.
     pause(5);
     disp("Configuring radio!")
-    tx(waveform);
-
-    tx_updated = tx
+    tx(waveform) % This is needed, to avoid the 7 second delay before sending.
 end
