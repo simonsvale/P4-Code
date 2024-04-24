@@ -1,5 +1,4 @@
-from .RadioController import RadioController
-#from attack_mode import AttackMode
+from .radio_controller import RadioController
 import csv
 
 class CLI:
@@ -85,14 +84,14 @@ class CLI:
             with open(f'MATLAB/data/ARFCN/{country}.csv', mode='r') as file:
                 csv_reader = csv.reader(file)
                 next(csv_reader)  # Skips the header row
-                frequencies = [int(row[0]) for row in csv_reader]
-                print(frequencies)
+                AFRCN = [int(row[0]) for row in csv_reader]
         except Exception as e:
             print(f"Failed to read the file: {str(e)}")
             return
 
         # Perform frequency sweep with the read frequencies
         try:
+            frequencies = self.rc.ARFCN_to_frequency(AFRCN)
             SSB_frequencies, timestamps = self.rc.frequency_sweep(frequencies)
             print("Frequency Sweep Results:")
             print("Frequencies:", SSB_frequencies)
