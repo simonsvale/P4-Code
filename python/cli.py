@@ -1,4 +1,5 @@
 from .radio_controller import RadioController
+from .attack_mode import AttackMode
 import csv
 
 class CLI:
@@ -7,9 +8,9 @@ class CLI:
         self.rc = RadioController() # Radio Controller-objekt
         self.selected_attack = None
         self.selected_attack_func = None
-        self.gain = "10"
         self.frequency = "100"
-        self.timing = "5"
+        self.duration = "10"
+        self.attack_mode = AttackMode.SMART
         
         # self.matlab_engine
         self.radio_object = None
@@ -107,35 +108,49 @@ class CLI:
         print("[3] PDCH Exploit")
 
         attack_options = {
-            '1': ssb_jamming,
-            '2': sss_jamming,
-            '3': pdch_exploit
+            '1': self.ssb_jamming,
+            '2': self.sss_jamming,
+            '3': self.pdch_exploit
         }
 
         attack_choice = input("Enter the number of the attack: ")
         if attack_choice in attack_options:
             self.selected_attack = attack_choice
             self.selected_attack_func = attack_options[self.selected_attack]
-            default_gain, default_frequency, default_timing = "10", "100", "5"
+            default_frequency, default_duration = "1857850000", "10"  # Default values for frequency and duration
             if self.selected_attack == '1':
-                default_gain, default_frequency, default_timing = "10", "100", "5"
+                self.frequency = input(f"Enter frequency value [{default_frequency}]: ") or default_frequency
+                self.duration = input(f"Enter duration value [{default_duration}]: ") or default_duration
+                # Prompt for SSB attack mode
+                print("Choose SSB attack mode:")
+                print("[1] Smart SSB Jamming")
+                print("[2] Dumb SSB Jamming")
+                attack_mode_choice = input("Enter the number of the attack mode: ")
+                if attack_mode_choice == '1':
+                    self.attack_mode = AttackMode.SMART
+                elif attack_mode_choice == '2':
+                    self.attack_mode = AttackMode.DUMB
+                else:
+                    print("Invalid attack mode choice.")
+                    return
             elif self.selected_attack == '2':
-                default_gain, default_frequency, default_timing = "15", "200", "10"
+                # Set default values for sss_jamming
+                None
             elif self.selected_attack == '3':
-                default_gain, default_frequency, default_timing = "20", "300", "15"
-
-            self.gain = input(f"Enter gain value [{default_gain}]: ") or default_gain
-            self.frequency = input(f"Enter frequency value [{default_frequency}]: ") or default_frequency
-            self.timing = input(f"Enter timing value [{default_timing}]: ") or default_timing
+                # Set default values for pdch_exploit
+                None
         else:
             print("Invalid attack choice.")
 
         
     def _run_attack(self) -> None:
         if self.selected_attack_func:
-            confirm = input(f"Confirm running attack {self.selected_attack} with gain={self.gain}, frequency={self.frequency}, timing={self.timing}? (y/n): ")
+            confirm = input(f"Confirm running attack {self.selected_attack} with frequency={self.frequency}, duration={self.duration} and attak mode={self.attack_mode}? (y/n): ")
             if confirm.lower() == 'y':
-                self.selected_attack_func(self.gain, self.frequency, self.timing)
+                if self.selected_attack == '1':
+                    self.selected_attack_func(self.frequency, self.duration, self.attack_mode)
+                else:
+                    self.selected_attack_func()
                 self.reset_selected_attack()
         else:
             print("No attack selected. Please choose an attack first.")
@@ -143,19 +158,41 @@ class CLI:
     def reset_selected_attack(self) -> None:
         self.selected_attack = None
         self.selected_attack_func = None
-        self.gain = "10"
-        self.frequency = "100"
-        self.timing = "5"  
+        self.frequency = "1857850000"
+        self.duration = "10"
+        self.attack_mode = AttackMode.SMART
 
 
-def ssb_jamming(gain="10", frequency="100", timing="5"):
-    print(f"Performing SSB Jamming with gain={gain}, frequency={frequency}, timing={timing}...")
+    def ssb_jamming(self, frequency="1857850000", duration="10") -> None:
+        if not self.rc.radioFound:
+            print("Radio not found. Please discover the radio first.")
+            return
 
-def sss_jamming(gain="15", frequency="200", timing="10"):
-    print(f"Performing SSS Jamming with gain={gain}, frequency={frequency}, timing={timing}...")
+        print("Choose SSB attack mode:")
+        print("[1] Smart SSB Jamming")
+        print("[2] Dumb SSB Jamming")
 
-def pdch_exploit(gain="20", frequency="300", timing="15"):
-    print(f"Performing PDCH Exploit with gain={gain}, frequency={frequency}, timing={timing}...")
+        attack_mode_choice = input("Enter the number of the attack mode: ")
+        if attack_mode_choice == '1':
+            attack_mode = AttackMode.SMART
+        elif attack_mode_choice == '2':
+            attack_mode = AttackMode.DUMB
+        else:
+            print("Invalid attack mode choice.")
+            return
+
+        # Call the SSB_attack method from RadioController
+        try:
+            self.rc.SSB_attack(frequency, duration, attack_mode)
+            print("SSB attack performed successfully.")
+        except Exception as e:
+            print(f"Error performing SSB attack: {str(e)}")
+
+    def sss_jamming(self):
+        print(f"Performing SSS Jamming with...")
+
+    def pdch_exploit(self):
+        print(f"Performing PDCH Exploit with...")
 
 if __name__ == "__main__":
     CLI().run()
