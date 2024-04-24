@@ -81,8 +81,6 @@ class RadioController():
             self.matlab_engine.smartSSBJam(self.rx, self.tx, matlab.double(frequency), duration, nargout=0) 
         elif attack_mode == AttackMode.DUMB:
             self.matlab_engine.dumbSSBJam(self.rx, self.tx, matlab.double(frequency), duration, nargout=0)
-        elif attack_mode == AttackMode.SPOOF:
-            pass
         else:
             raise ValueError("Unknown attack mode!")
     
