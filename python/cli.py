@@ -147,10 +147,24 @@ class CLI:
         if self.selected_attack_func:
             confirm = input(f"Confirm running attack {self.selected_attack} with frequency={self.frequency}, duration={self.duration} and attak mode={self.attack_mode}? (y/n): ")
             if confirm.lower() == 'y':
-                if self.selected_attack == '1':
-                    self.selected_attack_func(self.frequency, self.duration, self.attack_mode)
-                else:
-                    self.selected_attack_func()
+                try:
+                    if self.selected_attack == '1':
+                        # Call the SSB_attack method from RadioController
+                        try:
+                            self.rc.SSB_attack(int(self.frequency), int(self.duration), self.attack_mode)
+                            print("SSB attack performed successfully.")
+                        except Exception as e:
+                            print(f"Error performing SSB attack: {str(e)}")
+                    elif self.selected_attack == '2':
+                        print("Not implemented")
+                        return
+                    elif self.selected_attack == '3':
+                        print("Not implemented")
+                        return
+                    else:
+                        print("Invalid attack choice.")
+                except Exception as e:
+                    print(f"Error running attack: {str(e)}")
                 self.reset_selected_attack()
         else:
             print("No attack selected. Please choose an attack first.")
@@ -163,11 +177,7 @@ class CLI:
         self.attack_mode = AttackMode.SMART
 
 
-    def ssb_jamming(self, frequency="1857850000", duration="10") -> None:
-        if not self.rc.radioFound:
-            print("Radio not found. Please discover the radio first.")
-            return
-
+    def ssb_jamming(self) -> None:
         print("Choose SSB attack mode:")
         print("[1] Smart SSB Jamming")
         print("[2] Dumb SSB Jamming")
@@ -180,13 +190,6 @@ class CLI:
         else:
             print("Invalid attack mode choice.")
             return
-
-        # Call the SSB_attack method from RadioController
-        try:
-            self.rc.SSB_attack(frequency, duration, attack_mode)
-            print("SSB attack performed successfully.")
-        except Exception as e:
-            print(f"Error performing SSB attack: {str(e)}")
 
     def sss_jamming(self):
         print(f"Performing SSS Jamming with...")
