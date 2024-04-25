@@ -421,6 +421,7 @@ function extractPRACH(waveform,centerFrequency,scs,sampleRate)
         % Decode DL-SCH
         [sib1bits,sib1CRC] = decodeDLSCH(cw,pdsch.Modulation,pdsch.NumLayers,dci.RedundancyVersion);
         
+        % If no decoding errors are found break.
         if sib1CRC == 0
             break;
         end
@@ -453,6 +454,8 @@ function extractPRACH(waveform,centerFrequency,scs,sampleRate)
     if sib1CRC == 0
         disp(' SIB1 decoding succeeded.');
         disp("SIB1 Bytes: "+(length(sib1bits)/8));
+        %disp(sib1bits);
+
     else
         disp(' SIB1 decoding failed.');
     end
