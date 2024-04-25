@@ -36,12 +36,12 @@ function status = scheduledTransmission(centerFrequency, waveSampleRate, duratio
     
     % This is needed, to configure the radio.
     pause(5);
-    disp("Configuring radio!")
+    disp("Configuring transmission!")
     tx(waveform);
     
     
     periodicity = 0.02;
-    times = 5000;
+    times = 100;
     
     disp("transmission started!");
     
