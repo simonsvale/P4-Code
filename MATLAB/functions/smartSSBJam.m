@@ -1,4 +1,4 @@
-function smartSSBJam(rx, tx, centerFrequency, duration)
+function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     
     tic;
     % Check if any SSBs exists on the given center frequency.
@@ -10,18 +10,47 @@ function smartSSBJam(rx, tx, centerFrequency, duration)
         return
     end
     
-    % Setup jamming signal.
-    sineWave = dsp.SineWave('Frequency', centerFrequency, ...
-    'Amplitude', 1, ...
-    'PhaseOffset', 0, ...
-    'SampleRate', 10e3 , ...
-    'ComplexOutput', 0, ...
-    'SamplesPerFrame', 200e3);
+    if OFDM
+        ofdmMod = comm.OFDMModulator('FFTLength', 240, ...
+    'NumGuardBandCarriers', [6;5], ...
+    'InsertDCNull', false, ...
+    'CyclicPrefixLength', 16, ...
+    'Windowing', false, ...
+    'OversamplingFactor', 1, ...
+    'NumSymbols', 50, ...
+    'NumTransmitAntennas', 1, ...
+    'PilotInputPort', false);
 
-    % Generation of signal.
-    waveform = sineWave();
-    waveform = resample(waveform, 1000, tx.MasterClockRate/500);
+    % Modulation order
+    M = 4;
+
+    % input bit source:
+    in = randi([0 1], 22900, 1);
     
+    dataInput = qammod(in, M, 'gray', 'InputType', 'bit', 'UnitAveragePower', true);
+    ofdmInfo = info(ofdmMod);
+    ofdmSize = ofdmInfo.DataInputSize;
+    dataInput = reshape(dataInput, ofdmSize);
+    
+    % Generation
+    waveform = ofdmMod(dataInput);
+
+    else
+        % Setup jamming signal.
+        sineWave = dsp.SineWave('Frequency', centerFrequency, ...
+        'Amplitude', 1, ...
+        'PhaseOffset', 0, ...
+        'SampleRate', 10e3 , ...
+        'ComplexOutput', 0, ...
+        'SamplesPerFrame', 200e3);
+    
+        % Generation of signal.
+        waveform = sineWave();
+        waveform = resample(waveform, 1000, tx.MasterClockRate/500);
+    end
+
+    waveform = repmat(waveform, 1, 1);
+
     % Set rest of transmission settings.
     tx.ChannelMapping = 1;
     tx.LocalOscillatorOffset = 1;
@@ -30,8 +59,6 @@ function smartSSBJam(rx, tx, centerFrequency, duration)
     tx.InterpolationFactor = 1;
     tx.TransportDataType = 'int16';
     tx.EnableBurstMode = false;
-
-    waveform = repmat(waveform, 1, 1);
     
     % Configure transmission, is needed due to the FPGA.
     disp("Configuring transmission!")
