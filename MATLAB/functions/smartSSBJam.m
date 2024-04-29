@@ -91,7 +91,7 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     SSBDuration = constantIncrease*getSSBDuration(centerFrequency);
     
     if OFDM
-        transmissionTimer.TimerFcn = @(~,~) transmitOFDMSignal(tx, waveform);
+        transmissionTimer.TimerFcn = @(~,~) transmitOFDMSignal(tx, waveform, Fs);
         transmissionTimer.TasksToExecute = 10000*floor(duration);
     else
         transmissionTimer.TimerFcn = @(~,~) transmitJamSignal(tx, waveform, SSBDuration);

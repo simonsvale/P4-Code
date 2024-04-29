@@ -1,4 +1,4 @@
-function transmitOFDMSignal(tx, waveform)
+function transmitOFDMSignal(tx, waveform, Fs)
 
     t = 0; % sec
     while t<stopTime
