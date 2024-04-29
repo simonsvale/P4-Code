@@ -1,5 +1,9 @@
 function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     
+
+    subcarriers = 240;
+    OFDMSymbols = 4;
+    
     tic;
     % Check if any SSBs exists on the given center frequency.
     [frequency, timestamp] = frequencySweep(rx, centerFrequency, 30);
@@ -11,13 +15,13 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     end
     
     if OFDM
-        ofdmMod = comm.OFDMModulator('FFTLength', 240, ...
-        'NumGuardBandCarriers', [6;5], ...
+        ofdmMod = comm.OFDMModulator('FFTLength', subcarriers, ...
+        'NumGuardBandCarriers', [0;0], ...
         'InsertDCNull', false, ...
-        'CyclicPrefixLength', 16, ...
+        'CyclicPrefixLength', 4, ...
         'Windowing', false, ...
         'OversamplingFactor', 1, ...
-        'NumSymbols', 50, ...
+        'NumSymbols', OFDMSymbols, ...
         'NumTransmitAntennas', 1, ...
         'PilotInputPort', false);
         
@@ -25,12 +29,18 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
         M = 4;
     
         % input bit source:
-        in = randi([0 1], 22900, 1);
+        in = randi([0 1], 2 * subcarriers * OFDMSymbols, 1);
         
         dataInput = qammod(in, M, 'gray', 'InputType', 'bit', 'UnitAveragePower', true);
         ofdmInfo = info(ofdmMod);
         ofdmSize = ofdmInfo.DataInputSize;
         dataInput = reshape(dataInput, ofdmSize);
+        
+        % Get subcarrier spacing
+        scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
+        scs =  scsOptions(1) * 1e3;
+
+        Fs = ofdmMod.FFTLength * scs * ofdmMod.OversamplingFactor;
         
         % Generation
         waveform = ofdmMod(dataInput);
@@ -79,10 +89,15 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
 
     % Get the SSB time duration.
     SSBDuration = constantIncrease*getSSBDuration(centerFrequency);
-
-    transmissionTimer.TimerFcn = @(~,~) transmitJamSignal(tx, waveform, SSBDuration);
-    transmissionTimer.TasksToExecute = 10000*floor(duration);
     
+    if OFDM
+        transmissionTimer.TimerFcn = @(~,~) transmitOFDMSignal(tx, waveform);
+        transmissionTimer.TasksToExecute = 10000*floor(duration);
+    else
+        transmissionTimer.TimerFcn = @(~,~) transmitJamSignal(tx, waveform, SSBDuration);
+        transmissionTimer.TasksToExecute = 10000*floor(duration);
+    end
+
     % Get approx time since this function was called.
     configureTime = floor(toc);
 
