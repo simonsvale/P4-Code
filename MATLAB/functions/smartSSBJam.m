@@ -12,28 +12,28 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     
     if OFDM
         ofdmMod = comm.OFDMModulator('FFTLength', 240, ...
-    'NumGuardBandCarriers', [6;5], ...
-    'InsertDCNull', false, ...
-    'CyclicPrefixLength', 16, ...
-    'Windowing', false, ...
-    'OversamplingFactor', 1, ...
-    'NumSymbols', 50, ...
-    'NumTransmitAntennas', 1, ...
-    'PilotInputPort', false);
-
-    % Modulation order
-    M = 4;
-
-    % input bit source:
-    in = randi([0 1], 22900, 1);
+        'NumGuardBandCarriers', [6;5], ...
+        'InsertDCNull', false, ...
+        'CyclicPrefixLength', 16, ...
+        'Windowing', false, ...
+        'OversamplingFactor', 1, ...
+        'NumSymbols', 50, ...
+        'NumTransmitAntennas', 1, ...
+        'PilotInputPort', false);
+        
+        % Modulation order
+        M = 4;
     
-    dataInput = qammod(in, M, 'gray', 'InputType', 'bit', 'UnitAveragePower', true);
-    ofdmInfo = info(ofdmMod);
-    ofdmSize = ofdmInfo.DataInputSize;
-    dataInput = reshape(dataInput, ofdmSize);
-    
-    % Generation
-    waveform = ofdmMod(dataInput);
+        % input bit source:
+        in = randi([0 1], 22900, 1);
+        
+        dataInput = qammod(in, M, 'gray', 'InputType', 'bit', 'UnitAveragePower', true);
+        ofdmInfo = info(ofdmMod);
+        ofdmSize = ofdmInfo.DataInputSize;
+        dataInput = reshape(dataInput, ofdmSize);
+        
+        % Generation
+        waveform = ofdmMod(dataInput);
 
     else
         % Setup jamming signal.
