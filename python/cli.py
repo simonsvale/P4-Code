@@ -14,14 +14,6 @@ class CLI:
         
         # self.matlab_engine
         self.radio_object = None
-        
-        
-        # self.rc.discover_radio(serial_number:str)-> (rx:object, tx:object)
-        # self.rc.frequency_sweep(frequencies: list) -> (frequencies:list_of_ints, timestamps: list_of_datetime)
-        # self.rc.SSB_attack(attackMode:enum, frequency:int) -> None
-        
-        # self.rc.PRACH_jam() fremtid
-
 
     def run(self) -> None:
         options = {
@@ -46,9 +38,6 @@ class CLI:
                 options[user_input]()
             else:
                 print("Invalid choice. Please enter a number from 1 to 4.")
-
-            if user_input == 1:
-                pass
 
     def _discover_radio(self) -> None:
         radio_options = {
@@ -108,9 +97,9 @@ class CLI:
         print("[3] PDCH Exploit")
 
         attack_options = {
-            '1': self.ssb_jamming,
-            '2': self.sss_jamming,
-            '3': self.pdch_exploit
+            '1': self.rc.SSB_attack,
+            '2': self.sss_jamming, #Placeholder
+            '3': self.pdch_exploit #Placeholder
         }
 
         attack_choice = input("Enter the number of the attack: ")
@@ -145,7 +134,7 @@ class CLI:
         
     def _run_attack(self) -> None:
         if self.selected_attack_func:
-            confirm = input(f"Confirm running attack {self.selected_attack} with frequency={self.frequency}, duration={self.duration} and attak mode={self.attack_mode}? (y/n): ")
+            confirm = input(f"Confirm running attack {self.selected_attack} with frequency={self.frequency}, duration={self.duration} and attack mode={self.attack_mode}? (y/n): ")
             if confirm.lower() == 'y':
                 try:
                     if self.selected_attack == '1':
@@ -176,25 +165,10 @@ class CLI:
         self.duration = "10"
         self.attack_mode = AttackMode.SMART
 
-
-    def ssb_jamming(self) -> None:
-        print("Choose SSB attack mode:")
-        print("[1] Smart SSB Jamming")
-        print("[2] Dumb SSB Jamming")
-
-        attack_mode_choice = input("Enter the number of the attack mode: ")
-        if attack_mode_choice == '1':
-            attack_mode = AttackMode.SMART
-        elif attack_mode_choice == '2':
-            attack_mode = AttackMode.DUMB
-        else:
-            print("Invalid attack mode choice.")
-            return
-
-    def sss_jamming(self):
+    def sss_jamming(self): # Delete / change
         print(f"Performing SSS Jamming with...")
 
-    def pdch_exploit(self):
+    def pdch_exploit(self): # Delete / change
         print(f"Performing PDCH Exploit with...")
 
 if __name__ == "__main__":
