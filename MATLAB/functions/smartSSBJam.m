@@ -1,24 +1,13 @@
 function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     
-
     subcarriers = 240;
-    OFDMSymbols = 4;
-    
-    tic;
-    % Check if any SSBs exists on the given center frequency.
-    [frequency, timestamp] = frequencySweep(rx, centerFrequency, 30);
-
-    % Check if no SSBs were found.
-    if (isempty(frequency))
-        disp("No SSBs found on the given frequency.");
-        return
-    end
+    OFDMSymbols = 16;
     
     if OFDM
         ofdmMod = comm.OFDMModulator('FFTLength', subcarriers, ...
         'NumGuardBandCarriers', [0;0], ...
         'InsertDCNull', false, ...
-        'CyclicPrefixLength', 4, ...
+        'CyclicPrefixLength', 8, ...
         'Windowing', false, ...
         'OversamplingFactor', 1, ...
         'NumSymbols', OFDMSymbols, ...
@@ -29,7 +18,7 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
         M = 4;
     
         % input bit source:
-        in = randi([0 1], 2 * subcarriers * OFDMSymbols, 1);
+        in = randi([0 1], (2 * subcarriers * OFDMSymbols), 1);
         
         dataInput = qammod(in, M, 'gray', 'InputType', 'bit', 'UnitAveragePower', true);
         ofdmInfo = info(ofdmMod);
@@ -38,12 +27,12 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
         
         % Get subcarrier spacing
         scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
-        scs =  scsOptions(1) * 1e3;
+        scs =  double(extract(scsOptions(1),digitsPattern)) * 1e3;
 
-        Fs = ofdmMod.FFTLength * scs * ofdmMod.OversamplingFactor;
-        
         % Generation
         waveform = ofdmMod(dataInput);
+
+        Fs = ofdmMod.FFTLength * scs * ofdmMod.OversamplingFactor;
 
     else
         % Setup jamming signal.
@@ -66,7 +55,7 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     tx.LocalOscillatorOffset = 1;
     tx.PPSSource = 'Internal';
     tx.ClockSource = 'Internal';
-    tx.InterpolationFactor = 1;
+    tx.InterpolationFactor = 2;
     tx.TransportDataType = 'int16';
     tx.EnableBurstMode = false;
     
@@ -86,12 +75,13 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     
     % Needed as the USRP B210, cannot transmit with the desired periodicity.
     constantIncrease = 15;
+    
 
     % Get the SSB time duration.
     SSBDuration = constantIncrease*getSSBDuration(centerFrequency);
     
     if OFDM
-        transmissionTimer.TimerFcn = @(~,~) transmitOFDMSignal(tx, waveform, Fs);
+        transmissionTimer.TimerFcn = @(~,~) transmitOFDMSignal(tx, waveform, SSBDuration, Fs);
         transmissionTimer.TasksToExecute = 10000*floor(duration);
     else
         transmissionTimer.TimerFcn = @(~,~) transmitJamSignal(tx, waveform, SSBDuration);
@@ -99,9 +89,18 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     end
 
     % Get approx time since this function was called.
-    configureTime = floor(toc);
-
+    configureTime = 10;
+    
     % Adjust transmission timing to timestamp.
+    % Check if any SSBs exists on the given center frequency.
+    [frequency, timestamp] = frequencySweep(rx, centerFrequency, 30);
+
+    % Check if no SSBs were found.
+    if (isempty(frequency))
+        disp("No SSBs found on the given frequency.");
+        return
+    end
+
     transmissionPoint = datenum(datetime(timestamp, 'ConvertFrom', 'datenum') + seconds(configureTime));
 
     % Wait for the new transmission point.
