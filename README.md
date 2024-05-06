@@ -45,3 +45,12 @@ For Linux, is is recommended to install MATLAB engine via a virtual Python envir
     cd "C:\Program Files\MATLAB\R2023b\extern\engines\python"
     $ python -m pip install .
 
+### Run unit test
+1. To execute all unit tests, navigating to the python folder  
+    ```
+    $ cd python
+    ```
+2. Then, run every test
+    ```
+    $ python3 -m unittest discover
+    ```
