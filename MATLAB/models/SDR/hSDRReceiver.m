@@ -193,7 +193,7 @@ classdef hSDRReceiver < hSDRBase
             end
         end
 
-        function [data,timestamp] = capture(obj,len)
+        function [data,timestamp, realCaptureTime] = capture(obj,len)
         %capture Capture data from the SDR board
         %
         % [WAVEFORM,TIMESTAMP] = CAPTURE(RX,CAPTUREDURATION) captures
@@ -211,8 +211,7 @@ classdef hSDRReceiver < hSDRBase
         % complex data received on one antenna.
         %
         % TIMESTAMP is the timestamp of requesting data capture from
-        % the hardware.
-
+        % the hardware.        
             if isduration(len)
                 len = ceil(seconds(len)*obj.SampleRate);
             end
@@ -220,12 +219,19 @@ classdef hSDRReceiver < hSDRBase
             if matches(obj.DeviceName, obj.ListOfOtherTransceivers)
                 [data,mData] = capture(obj.SDRObj,len,'EnableOversizeCapture',true);
             elseif matches(obj.DeviceName, obj.ListOfWTConfigurations)
-                [data,mData.Date] = capture(obj.SDRObj,len);
+                [data,mData] = capture(obj.SDRObj,len);
             else % USRP and RTL-SDR
                  % Sometimes USRPs throw error message during burst capture.
                  % Throw as warning instead and supply zeros on output.
                 try
+                    timestamp = clock; % Take ms accurate timestamp.
+
+                    tic;
                     [data,mData] = capture(obj.SDRObj,len);
+                    realCaptureTime = floor(toc*1000);
+
+                    % Set the date to the accurate timestamp.
+                    mData.Date = timestamp;
                 catch e
                     warning(e.identifier,'%s',e.message)
                     release(obj)
@@ -234,7 +240,7 @@ classdef hSDRReceiver < hSDRBase
                 end
 
             end
-            timestamp = datetime(mData.Date);
+            timestamp = mData.Date;
         end
 
     end
@@ -251,7 +257,8 @@ classdef hSDRReceiver < hSDRBase
 
               case obj.ListOfUSRPs
                 sdrObj = comm.SDRuReceiver('Platform', obj.DeviceName);
-                obj.findUSRP(deviceName,sdrObj);
+                %obj.findUSRP(deviceName,sdrObj); % This is done
+                %externally, for more control over the selection of a radio.
               case obj.ListOfWTConfigurations
                 sdrObj = basebandReceiver(deviceName);
             end

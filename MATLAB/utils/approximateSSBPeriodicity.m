@@ -1,8 +1,8 @@
-function [detectedSSB, msOffset] = approximateSSBPeriodicity(waveform,centerFrequency,scs,sampleRate,showFig)
+function [detectedSSB, msOffset] = approximateSSBPeriodicity(waveform,centerFrequency,scs,sampleRate)
 % FINDSSB returns a logical value that depends on if WAVEFORM contains a
 % valid SSB.
     scsNumeric = double(extract(scs,digitsPattern));
-    searchBW = 3*scsNumeric;
+    searchBW = 6*scsNumeric;
 
     % Important in selecting the strongest SSB.
     [correctedWaveform,~,NID2] = hSSBurstFrequencyCorrect(waveform,scsNumeric,sampleRate,searchBW);
@@ -75,11 +75,11 @@ function [detectedSSB, msOffset] = approximateSSBPeriodicity(waveform,centerFreq
         L_max = 8;
         v = ibar_SSB;
     end
-    ssbIndex = v;
 
     % PBCH equalization and CSI calculation
     pbchHest = nrExtractResources(pbchIndices,hest);
     [pbchEq,csi] = nrEqualizeMMSE(pbchRx,pbchHest,nest);
+
     Qm = pbchIndicesInfo.G / pbchIndicesInfo.Gd;
     csi = repmat(csi.',Qm,1);
     csi = reshape(csi,[],1);
@@ -93,45 +93,13 @@ function [detectedSSB, msOffset] = approximateSSBPeriodicity(waveform,centerFreq
     % Perform BCH decoding
     polarListLength = 8;
     [~,crcBCH] = nrBCHDecode(pbchBits,polarListLength,L_max,ncellid);
-    gscn = hSynchronizationRasterInfo.frequency2gscn(centerFrequency);
+    
     if crcBCH == 0
-        % Plot grid and highlight strongest SSB
-        demodRB = 30;
-        rxGrid = nrOFDMDemodulate(correctedWaveform,demodRB,scsNumeric,nSlot,SampleRate=sampleRate);
-        % Extract 4 symbols of grid if exists
-        if size(rxGrid,2) < 56
-            last = size(rxGrid,2);
-        else
-            last = 14*4;
-        end
-
-        ssbFreqOrigin = 12*(demodRB-nrbSSB)/2 + 1;
-        startSymbol = 1;
-        numSymbolsSSB = 4;
+        % Get offset in milliseconds.
+        msOffset = timingOffset/sampleRate*1e3;
         detectedSSB = true;
-        
-        % Calculate offset in miliseconds.
-        rxOfdmInfo = nrOFDMInfo(nrbSSB,scsNumeric,'SampleRate',sampleRate);
-        
-        srRatio = sampleRate/(scsNumeric*1e3*rxOfdmInfo.Nfft);
-        firstSymbolLength = rxOfdmInfo.SymbolLengths(1)*srRatio;
-
-        msOffset = (timingOffset+firstSymbolLength)/sampleRate*1e3;
-
-        if showFig
-            figure;imagesc(abs(rxGrid(:,1:last,1))); axis xy
-            xlabel('OFDM symbol'); ylabel('Subcarrier');
-            ttl = sprintf('Resource Grid of SS Burst at GSCN %d (%.2f MHz)',gscn,centerFrequency/1e6);
-            title(ttl)
-            rectangle('Position',[startSymbol+0.5 ssbFreqOrigin-0.5 numSymbolsSSB 12*nrbSSB],EdgeColor='r',LineWidth=1.5)
-            str = sprintf('Strongest SSB: %d',ssbIndex);
-            text(startSymbol,ssbFreqOrigin-nrbSSB,0,str,FontSize=12,Color='w');
-            drawnow
-        end
-
     else
         detectedSSB = false;
         msOffset = -1;
-        %fprintf("<strong>No SSB Detected at GSCN %d (%.2f MHz).</strong>\n",gscn,centerFrequency/1e6);
     end
 end
