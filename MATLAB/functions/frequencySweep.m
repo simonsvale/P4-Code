@@ -1,4 +1,4 @@
-function [SSBFrequencies, firstSSBTimestamps] = frequencySweep(rx, centerFrequencies, captureDuration)
+function [SSBFrequencies, firstSSBTimestamps, realCaptureTime] = frequencySweep(rx, centerFrequencies, captureDuration)
     
     % Convert capture duration to milliseconds.
     captureDuration = milliseconds(captureDuration);
@@ -24,7 +24,7 @@ function [SSBFrequencies, firstSSBTimestamps] = frequencySweep(rx, centerFrequen
         scs =  scsOptions(1);
 
         % Capture waveform
-        [waveform, timestamp] = capture(rx, captureDuration);
+        [waveform, timestamp, realCaptureTime] = capture(rx, captureDuration);
 
         try
             % Attempt to detect the SSBs on the frequencies.
@@ -38,32 +38,7 @@ function [SSBFrequencies, firstSSBTimestamps] = frequencySweep(rx, centerFrequen
                
                 % Add the correctly offset timestamp to the return array.
                 firstSSBTimestamps(end+1) = datenum(timestamp);
-                
-                %{
-                % Fig
-                nrbSSB = 10; % Number of resource blocks in an SSB
-                scsNumeric = double(extract(scs,digitsPattern));
-                ofdmInfo = nrOFDMInfo(nrbSSB,scsNumeric);
-                
-                % Display spectrogram of received waveform  
-                figure;
-                nfft = ofdmInfo.Nfft * 32;
-                spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
-                
-                plotVar = [];
 
-                for n = 1:milliseconds(captureDuration)/20
-                    plotVar(end+1) = offset+20.0*n;
-                    plotVar(end+1) = offset-20.0*n;
-                end
-
-                hold on;
-                plot(plotVar, 0, 'r.', 'MarkerSize', 10);
-
-                plot(offset, 0, 'b.', 'MarkerSize', 10);
-
-                title('Spectrogram of the Received Waveform');
-                %}
             end
         catch err
             disp("ERROR: " + err.identifier);

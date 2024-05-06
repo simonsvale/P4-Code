@@ -74,7 +74,7 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     transmissionTimer.Period = 0.02;
     
     % Needed as the USRP B210, cannot transmit with the desired periodicity.
-    constantIncrease = 15;
+    constantIncrease = 25;
     
 
     % Get the SSB time duration.
@@ -89,11 +89,12 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     end
 
     % Get approx time since this function was called.
-    configureTime = 10;
+    configureTime = 5;
+
+    sweepDuration = 30;
     
-    % Adjust transmission timing to timestamp.
     % Check if any SSBs exists on the given center frequency.
-    [frequency, timestamp] = frequencySweep(rx, centerFrequency, 30);
+    [frequency, timestamp, realCaptureTime] = frequencySweep(rx, centerFrequency, sweepDuration);
 
     % Check if no SSBs were found.
     if (isempty(frequency))
@@ -101,7 +102,8 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
         return
     end
 
-    transmissionPoint = datenum(datetime(timestamp, 'ConvertFrom', 'datenum') + seconds(configureTime));
+    % Adjust transmission timing to timestamp.
+    transmissionPoint = datenum(datetime(timestamp, 'ConvertFrom', 'datenum') + milliseconds((sweepDuration - realCaptureTime)*(3/2)) + seconds(configureTime));
 
     % Wait for the new transmission point.
     while(datenum(clock)<=transmissionPoint)
