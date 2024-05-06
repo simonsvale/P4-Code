@@ -21,7 +21,7 @@ function [rx, tx] = configureSDR(platform, serialNumber)
             tx.SerialNum = serialNumber;
     end
 
-    % Set the default Ssample rate and gain.
+    % Set the default Sample rate and gain.
     rx.SampleRate = 31e6;
     rx.Gain = 76;
     tx.Gain = 76;
