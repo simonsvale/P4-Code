@@ -13,6 +13,11 @@ To open the MATLAB project:
 2. Navigate to `scripts` and open a file.
 3. To run it, press **RUN** under the **EDITOR** section or use the keyboard shortcut **F5**.
 
+### Run unit test
+To run every test use the following command in MATLAB
+```
+>> runtests
+```
 
 ## Python
 
