@@ -1,4 +1,5 @@
 import unittest
+
 from source_code.radio_controller import RadioController
 
 
@@ -30,7 +31,16 @@ class TestRadioController(unittest.TestCase):
         self.assertListEqual(actual_frequencies, expected_frequencies)
 
     def test_GSCN_to_frequency(self):
-        GSCN: list[int] = [5279, 4829, 4517, 2177, 2183, 6554, 2318, 1828]
+        GSCN: list[int] = [
+            5279,
+            4829,
+            4517,
+            2177,
+            2183,
+            6554,
+            2318,
+            1828
+        ]
         expected_frequencies: list[int] = [
             2112050000,
             1932050000,
