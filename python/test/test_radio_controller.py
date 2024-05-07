@@ -56,10 +56,13 @@ class TestRadioController(unittest.TestCase):
         self.assertEqual(actual_frequencies, expected_frequencies)
 
     def test_frequency_sweep(self):
-        # Test for raise exception when no radio is configured
-        with self.assertRaises(Exception):
+        # Test for when radio is not found
+        with self.assertRaises(Exception) as context:
             RadioController().frequency_sweep(frequencies=[])
+            self.assertTrue("Radio not found", str(context.exception))
 
     def test_SSB_attack(self):
-        # Test for raise exception when wrong attack mode is selected
-        self.assertRaises(ValueError, RadioController().SSB_attack(frequency=123, duration=123, attack_mode="wrong attackmode"))
+        # Test for when wrong attack mode is used
+        with self.assertRaises(ValueError) as context:
+            RadioController().SSB_attack(1, 2, attack_mode="wrong attack mode")
+            self.assertTrue("Unknown attack mode!", str(context.exception))
