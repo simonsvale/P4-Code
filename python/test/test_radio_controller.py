@@ -54,3 +54,11 @@ class TestRadioController(unittest.TestCase):
 
         actual_frequencies = RadioController.GSCN_to_frequency(GSCN)
         self.assertEqual(actual_frequencies, expected_frequencies)
+
+    def test_frequency_sweep(self):
+        # Test for raise exception when no radio is configured
+        self.assertRaises(Exception, RadioController().frequency_sweep(frequencies=[]))
+
+    def test_SSB_attack(self):
+        # Test for raise exception when wrong attack mode is selected
+        self.assertRaises(ValueError, RadioController().SSB_attack(frequency=123, duration=123, attack_mode="wrong attackmode"))
