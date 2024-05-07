@@ -57,7 +57,8 @@ class TestRadioController(unittest.TestCase):
 
     def test_frequency_sweep(self):
         # Test for raise exception when no radio is configured
-        self.assertRaises(Exception, RadioController().frequency_sweep(frequencies=[]))
+        with self.assertRaises(Exception):
+            RadioController().frequency_sweep(frequencies=[])
 
     def test_SSB_attack(self):
         # Test for raise exception when wrong attack mode is selected
