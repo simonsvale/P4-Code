@@ -4,6 +4,10 @@ from source_code.radio_controller import RadioController
 
 
 class TestRadioController(unittest.TestCase):
+    def test_discover_radio(self):
+        # When no radio is connected, we should see a general exception
+        with self.assertRaises(Exception):
+            RadioController().discover_radio()
 
     def test_ARFCN_to_frequency(self):
         ARFCN: list[int] = [
