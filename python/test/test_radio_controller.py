@@ -9,6 +9,18 @@ class TestRadioController(unittest.TestCase):
         with self.assertRaises(Exception):
             RadioController().discover_radio()
 
+    def test_frequency_sweep(self):
+        # Test for when radio is not found
+        with self.assertRaises(Exception) as context:
+            RadioController().frequency_sweep(frequencies=[])
+            self.assertTrue("Radio not found", str(context.exception))
+
+    def test_SSB_attack(self):
+        # Test for when wrong attack mode is used
+        with self.assertRaises(ValueError) as context:
+            RadioController().SSB_attack(1, 2, attack_mode="wrong attack mode")
+            self.assertTrue("Unknown attack mode!", str(context.exception))
+
     def test_ARFCN_to_frequency(self):
         ARFCN: list[int] = [
             155050,
@@ -35,16 +47,7 @@ class TestRadioController(unittest.TestCase):
         self.assertListEqual(actual_frequencies, expected_frequencies)
 
     def test_GSCN_to_frequency(self):
-        GSCN: list[int] = [
-            5279,
-            4829,
-            4517,
-            2177,
-            2183,
-            6554,
-            2318,
-            1828
-        ]
+        GSCN: list[int] = [5279, 4829, 4517, 2177, 2183, 6554, 2318, 1828]
         expected_frequencies: list[int] = [
             2112050000,
             1932050000,
@@ -58,15 +61,3 @@ class TestRadioController(unittest.TestCase):
 
         actual_frequencies = RadioController.GSCN_to_frequency(GSCN)
         self.assertEqual(actual_frequencies, expected_frequencies)
-
-    def test_frequency_sweep(self):
-        # Test for when radio is not found
-        with self.assertRaises(Exception) as context:
-            RadioController().frequency_sweep(frequencies=[])
-            self.assertTrue("Radio not found", str(context.exception))
-
-    def test_SSB_attack(self):
-        # Test for when wrong attack mode is used
-        with self.assertRaises(ValueError) as context:
-            RadioController().SSB_attack(1, 2, attack_mode="wrong attack mode")
-            self.assertTrue("Unknown attack mode!", str(context.exception))
