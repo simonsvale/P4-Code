@@ -8,7 +8,7 @@ class CLI:
         self.rc = RadioController() # Radio Controller-objekt
         self.selected_attack = None
         self.selected_attack_func = None
-        self.frequency = "100"
+        self.frequency = "2115850000"
         self.duration = "10"
         self.attack_mode = AttackMode.SMART
         
