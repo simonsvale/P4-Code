@@ -90,11 +90,10 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
 
     % Time until the transmission is started
     configureTime = 5;
-
     captureDuration = 30;
     
     % Check if any SSBs exists on the given center frequency.
-    [frequency, timestamp, hardwareCaptureTime] = frequencySweep(rx, centerFrequency, captureDuration);
+    [frequency, timestamp, hardwareCaptureDuration] = frequencySweep(rx, centerFrequency, captureDuration);
 
     % Check if no SSBs were found.
     if (isempty(frequency))
@@ -106,7 +105,7 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
     arbitraryConstant = 3/2;
 
     % Adjust transmission timing to timestamp.
-    synchronisedTransmissionPoint = datenum(datetime(timestamp, 'ConvertFrom', 'datenum') + milliseconds((captureDuration - hardwareCaptureTime) * arbitraryConstant) + seconds(configureTime));
+    synchronisedTransmissionPoint = datenum(datetime(timestamp, 'ConvertFrom', 'datenum') + milliseconds((captureDuration - hardwareCaptureDuration) * arbitraryConstant) + seconds(configureTime));
 
     % Wait for the synchronised transmission point.
     while(datenum(clock)<=synchronisedTransmissionPoint)
