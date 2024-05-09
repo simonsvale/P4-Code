@@ -24,12 +24,10 @@ class TestCLI(unittest.TestCase):
         )
 
     def tearDown(self) -> None:
-        # Close the file descriptors before terminate if needed
-        while not self.cli_process.stdin.closed:
-            self.cli_process.stdin.close()
-
-        while not self.cli_process.stdout.closed:
-            self.cli_process.stdout.close()
+        # Close the file descriptors before termination if needed
+        for fd in [self.cli_process.stdin, self.cli_process.stdout]:
+            while not fd.close:
+                fd.closed()
 
         # Terminate the cli process if it is alive
         while self.cli_process.poll() is None:
