@@ -60,7 +60,7 @@ class TestCLI(unittest.TestCase):
         self.cli_stdin(b"2\n")
 
         # Chose an invalid country
-        stdout, _ = self.cli_process.communicate(b"Edonia")
+        stdout, _ = self.cli_process.communicate(b"Edonia\n")
 
         # Check if we got an invalid choice
         self.assertIn(
@@ -75,7 +75,7 @@ class TestCLI(unittest.TestCase):
         self.cli_stdin(b"3\n")
 
         # Chose an invalid attack
-        stdout, _ = self.cli_process.communicate(b"melee")
+        stdout, _ = self.cli_process.communicate(b"melee\n")
 
         # Check if we got an invalid choice
         self.assertIn("Invalid attack choice.", stdout.decode())
@@ -96,7 +96,7 @@ class TestCLI(unittest.TestCase):
         self.cli_stdin(b"10\n")
 
         # Select an invalid SSB jamming technique
-        stdout, _ = self.cli_process.communicate(b"invalid")
+        stdout, _ = self.cli_process.communicate(b"invalid\n")
 
         # Check if we got an invalid attack mode choice
         self.assertIn("Invalid attack mode choice", stdout.decode())
@@ -105,7 +105,7 @@ class TestCLI(unittest.TestCase):
         """Test for when no attack has been selected."""
 
         # Select run attack option
-        stdout, _ = self.cli_process.communicate(b"4")
+        stdout, _ = self.cli_process.communicate(b"4\n")
 
         # Check if we got no attack selected
         self.assertIn(
