@@ -17,7 +17,10 @@ class TestCLI(unittest.TestCase):
             cwd=project_dir,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            # Because Python is ran as a subprocess, piping its
+            # print and input statements will raise an End Of Line
+            # Error (EOF). Therefore discard its stderr.
+            stderr=subprocess.DEVNULL,
         )
 
     def tearDown(self) -> None:
@@ -27,9 +30,6 @@ class TestCLI(unittest.TestCase):
 
         while not self.cli_process.stdout.closed:
             self.cli_process.stdout.close()
-
-        while not self.cli_process.stderr.closed:
-            self.cli_process.stderr.close()
 
         # Terminate the cli process if it is alive
         while self.cli_process.poll() is None:
@@ -47,7 +47,7 @@ class TestCLI(unittest.TestCase):
         self.cli_stdin(b"1\n")
 
         # Chose an invalid radio option
-        stdout, stderr = self.cli_process.communicate(b"invalid\n")
+        stdout, _ = self.cli_process.communicate(b"invalid\n")
 
         # Check if we got an invalid choice
         output = stdout.decode()
@@ -60,7 +60,7 @@ class TestCLI(unittest.TestCase):
         self.cli_stdin(b"2\n")
 
         # Chose an invalid country
-        stdout, stderr = self.cli_process.communicate(b"Edonia")
+        stdout, _ = self.cli_process.communicate(b"Edonia")
 
         # Check if we got an invalid choice
         output = stdout.decode()
@@ -76,7 +76,7 @@ class TestCLI(unittest.TestCase):
         self.cli_stdin(b"3\n")
 
         # Chose an invalid attack
-        stdout, stderr = self.cli_process.communicate(b"melee")
+        stdout, _ = self.cli_process.communicate(b"melee")
 
         # Check if we got an invalid choice
         output = stdout.decode()
@@ -98,7 +98,7 @@ class TestCLI(unittest.TestCase):
         self.cli_stdin(b"10\n")
 
         # Select an invalid SSB jamming technique
-        stdout, stderr = self.cli_process.communicate(b"invalid")
+        stdout, _ = self.cli_process.communicate(b"invalid")
 
         # Check if we got an invalid attack mode choice
         output = stdout.decode()
@@ -108,7 +108,7 @@ class TestCLI(unittest.TestCase):
         """Test for when no attack has been selected."""
 
         # Select run attack option
-        stdout, stderr = self.cli_process.communicate(b"4")
+        stdout, _ = self.cli_process.communicate(b"4")
 
         # Check if we got no attack selected
         output = stdout.decode()
