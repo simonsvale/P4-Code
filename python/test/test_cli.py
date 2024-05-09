@@ -1,7 +1,6 @@
 import unittest
 import os
 import subprocess
-from source_code.cli import CLI
 
 
 class TestCLI(unittest.TestCase):
