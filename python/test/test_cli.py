@@ -50,8 +50,7 @@ class TestCLI(unittest.TestCase):
         stdout, _ = self.cli_process.communicate(b"invalid\n")
 
         # Check if we got an invalid choice
-        output = stdout.decode()
-        self.assertIn("Invalid radio choice.", output)
+        self.assertIn("Invalid radio choice.", stdout.decode())
 
     def test_frequency_sweep(self):
         """Test for invalid country chose."""
@@ -63,10 +62,9 @@ class TestCLI(unittest.TestCase):
         stdout, _ = self.cli_process.communicate(b"Edonia")
 
         # Check if we got an invalid choice
-        output = stdout.decode()
         self.assertIn(
             "Invalid country name or not in list. Please try again.",
-            output,
+            stdout.decode(),
         )
 
     def test_choose_attack_with_invalid_choice(self):
@@ -79,8 +77,7 @@ class TestCLI(unittest.TestCase):
         stdout, _ = self.cli_process.communicate(b"melee")
 
         # Check if we got an invalid choice
-        output = stdout.decode()
-        self.assertIn("Invalid attack choice.", output)
+        self.assertIn("Invalid attack choice.", stdout.decode())
 
     def test_choose_attack_with_invalid_SSB_jamming(self):
         """Test for invalid SSB jamming."""
@@ -101,8 +98,7 @@ class TestCLI(unittest.TestCase):
         stdout, _ = self.cli_process.communicate(b"invalid")
 
         # Check if we got an invalid attack mode choice
-        output = stdout.decode()
-        self.assertIn("Invalid attack mode choice", output)
+        self.assertIn("Invalid attack mode choice", stdout.decode())
 
     def test_run_attack(self):
         """Test for when no attack has been selected."""
@@ -111,8 +107,7 @@ class TestCLI(unittest.TestCase):
         stdout, _ = self.cli_process.communicate(b"4")
 
         # Check if we got no attack selected
-        output = stdout.decode()
         self.assertIn(
             "No attack selected. Please choose an attack first.",
-            output,
+            stdout.decode(),
         )
