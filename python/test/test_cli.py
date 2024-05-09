@@ -6,15 +6,17 @@ import subprocess
 class TestCLI(unittest.TestCase):
 
     def setUp(self) -> None:
-        # Setup a CLI process for testing
+        """Setup a CLI process for testing"""
 
-        # Change path to project dir to run the CLI process from main.py
-        project_dir: str = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+        # Move one folder up so that we are in the root project folder
+        project_folder = os.path.join(os.getcwd(), os.pardir)
 
-        cmd = ["python3", "main.py"]
+        # Get the absolute path of the project
+        abs_project_folder = os.path.abspath(project_folder)
+
         self.cli_process = subprocess.Popen(
-            cmd,
-            cwd=project_dir,
+            ["python3", "main.py"],
+            cwd=abs_project_folder,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             # Because Python is ran as a subprocess, piping its
