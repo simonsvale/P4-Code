@@ -51,7 +51,21 @@ class TestCLI(unittest.TestCase):
         self.assertIn("Invalid radio choice.", output)
 
     def test_frequency_sweep(self):
-        self.skipTest(reason="No yet implemented unit test")
+        """Test for invalid country chose."""
+
+        # Select frequency sweep
+        self.cli_process.stdin.write(b"2\n")
+        self.cli_process.stdin.flush()
+
+        # Chose an invalid country
+        stdout, stderr = self.cli_process.communicate(b"Edonia")
+
+        # Check if we got an invalid choice
+        output = stdout.decode()
+        self.assertIn(
+            "Invalid country name or not in list. Please try again.",
+            output,
+        )
 
     def test_choose_attack(self):
         self.skipTest(reason="No yet implemented unit test")
