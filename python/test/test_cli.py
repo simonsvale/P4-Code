@@ -108,7 +108,17 @@ class TestCLI(unittest.TestCase):
         self.assertIn("Invalid attack mode choice", output)
 
     def test_run_attack(self):
-        self.skipTest(reason="No yet implemented unit test")
+        """Test for when no attack has been selected."""
+
+        # Select run attack option
+        stdout, stderr = self.cli_process.communicate(b"4")
+
+        # Check if we got no attack selected
+        output = stdout.decode()
+        self.assertIn(
+            "No attack selected. Please choose an attack first.",
+            output,
+        )
 
     def test_reset_selected_attack(self):
         self.skipTest(reason="No yet implemented unit test")
