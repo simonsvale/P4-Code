@@ -120,9 +120,6 @@ class TestCLI(unittest.TestCase):
             output,
         )
 
-    def test_reset_selected_attack(self):
-        self.skipTest(reason="No yet implemented unit test")
-
     def test_sss_jamming(self):
         self.skipTest(reason="No yet implemented unit test")
 
