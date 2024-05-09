@@ -119,9 +119,3 @@ class TestCLI(unittest.TestCase):
             "No attack selected. Please choose an attack first.",
             output,
         )
-
-    def test_sss_jamming(self):
-        self.skipTest(reason="No yet implemented unit test")
-
-    def test_pdch_exploit(self):
-        self.skipTest(reason="No yet implemented unit test")
