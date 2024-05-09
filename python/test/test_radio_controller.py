@@ -1,32 +1,38 @@
 import unittest
-
 from source_code.radio_controller import RadioController
 
 
 class TestRadioController(unittest.TestCase):
-    def test_discover_radio(self):
+    """Unit test for the RadioController class."""
+
+    def test_discover_radio(self) -> None:
+        """Test when no radio is connected."""
+
         # When no radio is connected, we should see a general exception
         with self.assertRaises(Exception):
             RadioController().discover_radio()
 
-    def test_frequency_sweep(self):
-        # Test for when radio is not found
+    def test_frequency_sweep(self) -> None:
+        """Test the frequency method for when no radio is connected."""
+
         with self.assertRaises(Exception) as context:
             RadioController().frequency_sweep(frequencies=[])
             self.assertTrue("Radio not found", str(context.exception))
 
-    def test_SSB_attack(self):
-        # Test for when wrong attack mode is used
+    def test_SSB_attack(self) -> None:
+        """Test for unknown AttackMode."""
+
         with self.assertRaises(ValueError) as context:
             RadioController().SSB_attack(1, 2, attack_mode="wrong attack mode")
             self.assertTrue("Unknown attack mode!", str(context.exception))
 
-    def test_PRACH_jam(self):
+    def test_PRACH_jam(self) -> None:
         # This method has jet to be implemented
         with self.assertRaises(NotImplementedError):
             RadioController().PRACH_jam()
 
-    def test_ARFCN_to_frequency(self):
+    def test_ARFCN_to_frequency(self) -> None:
+        """Test the conversion from ARFCN to Hz."""
         ARFCN: list[int] = [
             155050,
             371570,
@@ -52,6 +58,7 @@ class TestRadioController(unittest.TestCase):
         self.assertListEqual(actual_frequencies, expected_frequencies)
 
     def test_GSCN_to_frequency(self):
+        """Test the conversion from GSCN to Hz."""
         GSCN: list[int] = [5279, 4829, 4517, 2177, 2183, 6554, 2318, 1828]
         expected_frequencies: list[int] = [
             2112050000,
