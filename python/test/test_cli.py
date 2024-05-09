@@ -67,8 +67,45 @@ class TestCLI(unittest.TestCase):
             output,
         )
 
-    def test_choose_attack(self):
-        self.skipTest(reason="No yet implemented unit test")
+    def test_choose_attack_with_invalid_choice(self):
+        """Test for invalid attack choice."""
+
+        # Select chose attack option
+        self.cli_process.stdin.write(b"3\n")
+        self.cli_process.stdin.flush()
+
+        # Chose an invalid attack
+        stdout, stderr = self.cli_process.communicate(b"melee")
+
+        # Check if we got an invalid choice
+        output = stdout.decode()
+        self.assertIn("Invalid attack choice.", output)
+
+    def test_choose_attack_with_invalid_SSB_jamming(self):
+        """Test for invalid SSB jamming."""
+
+        # Select chose attack option
+        self.cli_process.stdin.write(b"3\n")
+        self.cli_process.stdin.flush()
+
+        # Select SSB jamming
+        self.cli_process.stdin.write(b"1\n")
+        self.cli_process.stdin.flush()
+
+        # Choose the frequency to be 1 GHz
+        self.cli_process.stdin.write(b"1000000000\n")
+        self.cli_process.stdin.flush()
+
+        # Choose the duration to be 10 seconds
+        self.cli_process.stdin.write(b"10\n")
+        self.cli_process.stdin.flush()
+
+        # Select an invalid SSB jamming technique
+        stdout, stderr = self.cli_process.communicate(b"invalid")
+
+        # Check if we got an invalid attack mode choice
+        output = stdout.decode()
+        self.assertIn("Invalid attack mode choice", output)
 
     def test_run_attack(self):
         self.skipTest(reason="No yet implemented unit test")
