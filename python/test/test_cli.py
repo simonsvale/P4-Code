@@ -36,12 +36,16 @@ class TestCLI(unittest.TestCase):
         while self.cli_process.poll() is None:
             self.cli_process.terminate()
 
+    def cli_stdin(self, input: bytes) -> None:
+        """Helper method for piping only to stdin in the cli process."""
+        self.cli_process.stdin.write(input)
+        self.cli_process.stdin.flush()
+
     def test_discover_radio(self):
         """Test for invalid radio chose."""
 
         # Select discover Radio option
-        self.cli_process.stdin.write(b"1\n")
-        self.cli_process.stdin.flush()
+        self.cli_stdin(b"1\n")
 
         # Chose an invalid radio option
         stdout, stderr = self.cli_process.communicate(b"invalid\n")
@@ -54,8 +58,7 @@ class TestCLI(unittest.TestCase):
         """Test for invalid country chose."""
 
         # Select frequency sweep
-        self.cli_process.stdin.write(b"2\n")
-        self.cli_process.stdin.flush()
+        self.cli_stdin(b"2\n")
 
         # Chose an invalid country
         stdout, stderr = self.cli_process.communicate(b"Edonia")
@@ -71,8 +74,7 @@ class TestCLI(unittest.TestCase):
         """Test for invalid attack choice."""
 
         # Select chose attack option
-        self.cli_process.stdin.write(b"3\n")
-        self.cli_process.stdin.flush()
+        self.cli_stdin(b"3\n")
 
         # Chose an invalid attack
         stdout, stderr = self.cli_process.communicate(b"melee")
@@ -85,20 +87,16 @@ class TestCLI(unittest.TestCase):
         """Test for invalid SSB jamming."""
 
         # Select chose attack option
-        self.cli_process.stdin.write(b"3\n")
-        self.cli_process.stdin.flush()
+        self.cli_stdin(b"3\n")
 
         # Select SSB jamming
-        self.cli_process.stdin.write(b"1\n")
-        self.cli_process.stdin.flush()
+        self.cli_stdin(b"1\n")
 
         # Choose the frequency to be 1 GHz
-        self.cli_process.stdin.write(b"1000000000\n")
-        self.cli_process.stdin.flush()
+        self.cli_stdin(b"1000000000\n")
 
         # Choose the duration to be 10 seconds
-        self.cli_process.stdin.write(b"10\n")
-        self.cli_process.stdin.flush()
+        self.cli_stdin(b"10\n")
 
         # Select an invalid SSB jamming technique
         stdout, stderr = self.cli_process.communicate(b"invalid")
