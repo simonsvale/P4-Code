@@ -4,6 +4,7 @@ import subprocess
 
 
 class TestCLI(unittest.TestCase):
+    """Unit test the CLI as a process using piping."""
 
     def setUp(self) -> None:
         """Setup a CLI process for testing"""
@@ -40,8 +41,8 @@ class TestCLI(unittest.TestCase):
         self.cli_process.stdin.write(input)
         self.cli_process.stdin.flush()
 
-    def test_discover_radio(self):
-        """Test for invalid radio chose."""
+    def test_discover_radio(self) -> None:
+        """Test for selecting an invalid radio choice."""
 
         # Select discover Radio option
         self.cli_stdin(b"1\n")
@@ -52,8 +53,8 @@ class TestCLI(unittest.TestCase):
         # Check if we got an invalid choice
         self.assertIn("Invalid radio choice.", stdout.decode())
 
-    def test_frequency_sweep(self):
-        """Test for invalid country chose."""
+    def test_frequency_sweep(self) -> None:
+        """Test for selecting an invalid country choice."""
 
         # Select frequency sweep
         self.cli_stdin(b"2\n")
@@ -67,7 +68,7 @@ class TestCLI(unittest.TestCase):
             stdout.decode(),
         )
 
-    def test_choose_attack_with_invalid_choice(self):
+    def test_choose_attack_with_invalid_choice(self) -> None:
         """Test for invalid attack choice."""
 
         # Select chose attack option
@@ -79,8 +80,8 @@ class TestCLI(unittest.TestCase):
         # Check if we got an invalid choice
         self.assertIn("Invalid attack choice.", stdout.decode())
 
-    def test_choose_attack_with_invalid_SSB_jamming(self):
-        """Test for invalid SSB jamming."""
+    def test_choose_attack_with_invalid_SSB_jamming(self) -> None:
+        """Test for selecting an invalid SSB jamming technique"""
 
         # Select chose attack option
         self.cli_stdin(b"3\n")
@@ -100,7 +101,7 @@ class TestCLI(unittest.TestCase):
         # Check if we got an invalid attack mode choice
         self.assertIn("Invalid attack mode choice", stdout.decode())
 
-    def test_run_attack(self):
+    def test_run_attack(self) -> None:
         """Test for when no attack has been selected."""
 
         # Select run attack option
