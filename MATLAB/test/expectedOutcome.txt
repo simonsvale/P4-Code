@@ -1,0 +1,30 @@
+>> runtests
+Setting up ProjectFixture
+Done setting up ProjectFixture: Project 'MATLAB' is already loaded. Setup is not required.
+__________
+
+Running configureSDRTest
+.Checking radio connections...
+.
+Done configureSDRTest
+__________
+
+Tearing down ProjectFixture
+Done tearing down ProjectFixture: Teardown is not required.
+__________
+
+
+ans = 
+
+  1×2 TestResult array with properties:
+
+    Name
+    Passed
+    Failed
+    Incomplete
+    Duration
+    Details
+
+Totals:
+   2 Passed, 0 Failed, 0 Incomplete.
+   1.045 seconds testing time.
