@@ -5,15 +5,12 @@ import csv
 class CLI:
 
     def __init__(self) -> None:
-        self.rc = RadioController() # Radio Controller-objekt
-        self.selected_attack = None
+        self.rc = RadioController()
+        self.selected_attack: str = None
         self.selected_attack_func = None
-        self.frequency = "100"
+        self.frequency = "1857850000"
         self.duration = "10"
         self.attack_mode = AttackMode.SMART
-        
-        # self.matlab_engine
-        self.radio_object = None
 
     def run(self) -> None:
         options = {
@@ -32,7 +29,8 @@ class CLI:
 
             user_input = input("Enter the number of your choice or 'exit' to exit: ")
 
-            if user_input.lower() == 'exit': exit(0)
+            if user_input.lower() == 'exit': 
+                exit(0)
             
             if user_input in options:
                 options[user_input]()
@@ -51,7 +49,7 @@ class CLI:
         radio_choice = input("Select radio: ")
         if radio_choice in radio_options:
             selected_radio = radio_options[radio_choice]
-            self.radio_object = self.rc.discover_radio(platform='B210', serial_number=selected_radio)
+            self.rc.discover_radio(platform='B210', serial_number=selected_radio)
             print(f"Radio {selected_radio} selected.")
         else:
             print("Invalid radio choice.")
@@ -93,8 +91,6 @@ class CLI:
     def _choose_attack(self) -> None:
         print("Choose Attack:")
         print("[1] SSB Jamming")
-        print("[2] SSS Jamming")
-        print("[3] PDCH Exploit")
 
         attack_options = {
             '1': self.rc.SSB_attack,
@@ -114,11 +110,14 @@ class CLI:
                 print("Choose SSB attack mode:")
                 print("[1] Smart SSB Jamming")
                 print("[2] Dumb SSB Jamming")
+                print("[3] OFDM SSB Jamming")
                 attack_mode_choice = input("Enter the number of the attack mode: ")
                 if attack_mode_choice == '1':
                     self.attack_mode = AttackMode.SMART
                 elif attack_mode_choice == '2':
                     self.attack_mode = AttackMode.DUMB
+                elif attack_mode_choice == '3':
+                    self.attack_mode = AttackMode.OFDM
                 else:
                     print("Invalid attack mode choice.")
                     return

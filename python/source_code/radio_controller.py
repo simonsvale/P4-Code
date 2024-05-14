@@ -78,9 +78,11 @@ class RadioController():
         print("SSB attacking mode:", attack_mode)
 
         if attack_mode == AttackMode.SMART:
-            self.matlab_engine.smartSSBJam(self.rx, self.tx, matlab.double(frequency), duration, nargout=0) 
+            self.matlab_engine.smartSSBJam(self.rx, self.tx, matlab.double(frequency), duration, False, nargout=0) 
         elif attack_mode == AttackMode.DUMB:
             self.matlab_engine.dumbSSBJam(self.rx, self.tx, matlab.double(frequency), duration, nargout=0)
+        elif attack_mode == AttackMode.OFDM:
+            self.matlab_engine.smartSSBJam(self.rx, self.tx, matlab.double(frequency), duration, True, nargout=0)
         else:
             raise ValueError("Unknown attack mode!")
     
