@@ -122,7 +122,6 @@ class CLI:
             SSB_frequencies, timestamps = self.rc.frequency_sweep(frequencies)
             print("Frequency Sweep Results:")
             print("Frequencies:", SSB_frequencies)
-            print("Timestamps:", timestamps)
         except Exception as e:
             print(f"Error during frequency sweep: {e}")
             return
