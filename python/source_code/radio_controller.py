@@ -112,7 +112,7 @@ class RadioController:
     def SSB_attack(
         self, frequency: int, duration: int, attack_mode: AttackMode = AttackMode.SMART
     ) -> None:
-        print(f"SSB attacking mode: {attack_mode.name}")
+        print(f"SSB attacking mode: {attack_mode}")
         """Execute the given SSB attack."""
 
         # Check if the provided attack mode is supported
