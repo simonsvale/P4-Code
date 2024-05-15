@@ -26,11 +26,6 @@ class TestRadioController(unittest.TestCase):
             RadioController().SSB_attack(1, 2, attack_mode="wrong attack mode")
             self.assertTrue("Unknown attack mode!", str(context.exception))
 
-    def test_PRACH_jam(self) -> None:
-        # This method has jet to be implemented
-        with self.assertRaises(NotImplementedError):
-            RadioController().PRACH_jam()
-
     def test_ARFCN_to_frequency(self) -> None:
         """Test the conversion from ARFCN to Hz."""
         ARFCN: list[int] = [

@@ -1,174 +1,248 @@
+import csv
 from .radio_controller import RadioController
 from .attack_mode import AttackMode
-import csv
+
 
 class CLI:
+    """A Command Line Interface to scan and attack 5G networks."""
 
     def __init__(self) -> None:
         self.rc = RadioController()
-        self.selected_attack: str = None
-        self.selected_attack_func = None
-        self.frequency = "1857850000"
-        self.duration = "10"
-        self.attack_mode = AttackMode.SMART
+        self.reset_attack_parameters()
+
+    def reset_attack_parameters(self) -> None:
+        """Reset all parameters used for an attack to their default value."""
+        self.selected_attack_func: function | None = None
+        self.frequency: str = "1857850000"
+        self.duration: str = "10"
+        self.attack_mode: AttackMode = AttackMode.SMART
 
     def run(self) -> None:
-        options = {
-            '1': self._discover_radio,
-            '2': self._frequency_sweep,
-            '3': self._choose_attack,
-            '4': self._run_attack
+        """Main entry to run this CLI."""
+
+        # Available methods to run from the CLI
+        available_methods: dict[str, function] = {
+            "1": self._discover_radio,
+            "2": self._frequency_sweep,
+            "3": self._choose_attack,
+            "4": self._run_attack,
         }
 
         while True:
-            print("Welcome to the Program!")
+            # Print all of the methods that the attacker can use
             print("[1] Discover Radio")
             print("[2] Frequency Sweep")
             print("[3] Choose Attack")
-            print("[4] Run Attack(Unavailable)") if not self.selected_attack else print("[4] Run Attack")
-
-            user_input = input("Enter the number of your choice or 'exit' to exit: ")
-
-            if user_input.lower() == 'exit': 
-                exit(0)
-            
-            if user_input in options:
-                options[user_input]()
+            if not self.selected_attack_func:
+                print("[4] Run Attack(Unavailable)")
             else:
-                print("Invalid choice. Please enter a number from 1 to 4.")
+                print("[4] Run Attack")
+
+            # Prompt the attacker to select a method
+            selected_method: str = input(
+                "Enter the number of your choice or 'exit' to exit: "
+            ).lower()
+
+            # Exit if the attacker wants to exit
+            if selected_method == "exit":
+                exit()
+
+            # If the attacker selected an invalid method
+            if not selected_method in available_methods:
+                print("Invalid choice. Please enter 1 to 4.")
+                continue
+
+            # Otherwise run the selected method
+            available_methods[selected_method]()
 
     def _discover_radio(self) -> None:
-        radio_options = {
-            '1': "",
-            '2': "8000748",
-            '3': "8000758",
+        """Discover and configure a selected B210 SDR."""
+
+        radio_serial_number_options: dict[str, str] = {
+            "1": "",        # The default value for auto configure
+            "2": "8000748",
+            "3": "8000758",
         }
-        print("[1] Auto")
-        print("[2] USRP B210 with Serial number 8000748")
-        print("[3] USRP B210 with Serial number 8000758")
-        radio_choice = input("Select radio: ")
-        if radio_choice in radio_options:
-            selected_radio = radio_options[radio_choice]
-            self.rc.discover_radio(platform='B210', serial_number=selected_radio)
-            print(f"Radio {selected_radio} selected.")
-        else:
+
+        print("[1] USRP B210 with auto configured serial number")
+        print("[2] USRP B210 with serial number: 8000748")
+        print("[3] USRP B210 with Serial number: 8000758")
+
+        # Prompt the attacker to select a radio/SDR
+        radio_serial_number_choice: str = input("Select radio: ")
+
+        # Check if a valid radio/SDR was selected
+        if not radio_serial_number_choice in radio_serial_number_options:
             print("Invalid radio choice.")
+            return
+
+        # Configure the selected radio
+        selected_sn = radio_serial_number_options[radio_serial_number_choice]
+        self.rc.discover_radio(platform="B210", serial_number=selected_sn)
+        print("Radio selected.")
 
     def _frequency_sweep(self) -> None:
-        # Prompt user to select a country
+        """Scan for SSBs in a selected country."""
+
+        available_countries: list[str] = [
+            "Denmark",
+            "Germany",
+            "Norway",
+            "Sweden",
+            "Finland",
+            "Russia",
+        ]
+
+        # Print all of the available countries that the attacker can select
         print("Select a country for frequency sweep:")
-        countries = ['Denmark','Germany','Norway','Sweden','Finland','Russia']
-        for i, country in enumerate(countries, 1):
+        for i, country in enumerate(available_countries, 1):
             print(f"[{i}] {country}")
+
+        # Prompt the attacker to select a country
         try:
-            choice = int(input("Enter your choice: "))
-            country = countries[choice - 1]
+            choice = int(input("Enter your choice: ")) - 1
+            country = available_countries[choice]
         except (IndexError, ValueError):
             print("Invalid country name or not in list. Please try again.")
             return
 
-        # Read frequencies from the corresponding CSV file
+        # Read frequencies from the corresponding CSV file for the selected country
         try:
-            with open(f'MATLAB/data/ARFCN/{country}.csv', mode='r') as file:
+            with open(f"MATLAB/data/ARFCN/{country}.csv", mode="r") as file:
                 csv_reader = csv.reader(file)
                 next(csv_reader)  # Skips the header row
-                AFRCN = [int(row[0]) for row in csv_reader]
+                ARFCNs: list[int] = [int(row[0]) for row in csv_reader]
         except Exception as e:
-            print(f"Failed to read the file: {str(e)}")
+            print(f"Failed to read the file: {e}")
             return
 
         # Perform frequency sweep with the read frequencies
         try:
-            frequencies = self.rc.ARFCN_to_frequency(AFRCN)
+            frequencies: list[int] = self.rc.ARFCN_to_frequency(ARFCNs)
             SSB_frequencies, timestamps = self.rc.frequency_sweep(frequencies)
             print("Frequency Sweep Results:")
             print("Frequencies:", SSB_frequencies)
             print("Timestamps:", timestamps)
         except Exception as e:
-            print(f"Error during frequency sweep: {str(e)}")
-        
+            print(f"Error during frequency sweep: {e}")
+            return
 
     def _choose_attack(self) -> None:
-        print("Choose Attack:")
-        print("[1] SSB Jamming")
+        """Select an attack function."""
 
-        attack_options = {
-            '1': self.rc.SSB_attack,
-            '2': self.sss_jamming, #Placeholder
-            '3': self.pdch_exploit #Placeholder
+        available_attack_functions: dict[str, function] = {
+            "1": self.rc.SSB_attack,
+            "2": self.sss_jamming,  # Placeholder
+            "3": self.pdch_exploit,  # Placeholder
         }
 
-        attack_choice = input("Enter the number of the attack: ")
-        if attack_choice in attack_options:
-            self.selected_attack = attack_choice
-            self.selected_attack_func = attack_options[self.selected_attack]
-            default_frequency, default_duration = "1857850000", "10"  # Default values for frequency and duration
-            if self.selected_attack == '1':
-                self.frequency = input(f"Enter frequency value [{default_frequency}]: ") or default_frequency
-                self.duration = input(f"Enter duration value [{default_duration}]: ") or default_duration
-                # Prompt for SSB attack mode
-                print("Choose SSB attack mode:")
-                print("[1] Smart SSB Jamming")
-                print("[2] Dumb SSB Jamming")
-                print("[3] OFDM SSB Jamming")
-                attack_mode_choice = input("Enter the number of the attack mode: ")
-                if attack_mode_choice == '1':
-                    self.attack_mode = AttackMode.SMART
-                elif attack_mode_choice == '2':
-                    self.attack_mode = AttackMode.DUMB
-                elif attack_mode_choice == '3':
-                    self.attack_mode = AttackMode.OFDM
-                else:
-                    print("Invalid attack mode choice.")
-                    return
-            elif self.selected_attack == '2':
-                # Set default values for sss_jamming
-                None
-            elif self.selected_attack == '3':
-                # Set default values for pdch_exploit
-                None
-        else:
+        print("Choose Attack:")
+        print("[1] SSB Jamming")
+        print("[2] SSS Jamming")
+        print("[3] PDCH Exploit")
+
+        # Prompt the attacker to select a attack function
+        attack_function_choice: str = input("Enter the number of the attack: ")
+
+        # If the attacker did not chose a valid attack function
+        if not attack_function_choice in available_attack_functions:
             print("Invalid attack choice.")
+            return
 
+        # Save the selected attack function so
+        # that the attacker can run it later
+        self.selected_attack_func = available_attack_functions[attack_function_choice]
+
+        default_frequency: str = "1857850000"
+        default_duration: str = "10"
+
+        # Now prompt the attacker to setup the selected attack function
+
+        if self.selected_attack_func == self.rc.SSB_attack:
+            # Check if the attacker wants to use 
+            # their own frequency and duration
+            self.frequency = input(f"Enter frequency value [{default_frequency}]: ") or default_frequency
+            self.duration = input(f"Enter duration value [{default_duration}]: ") or default_duration
+
+            print("Choose SSB attack mode:")
+            print("[1] Smart SSB Jamming")
+            print("[2] Dumb SSB Jamming")
+            print("[3] OFDM SSB Jamming")
+
+            available_attack_modes: dict[str, AttackMode] = {
+                "1": AttackMode.SMART,
+                "2": AttackMode.DUMB,
+                "3": AttackMode.OFDM
+            }
+
+            # Prompt the attacker to selected a SSB jamming mode
+            attack_mode_choice: str = input(
+                "Enter the number of the attack mode: "
+            )
+
+            # Check if the attacker selected a valid attack mode
+            if not attack_mode_choice in available_attack_modes:
+                print("Invalid attack mode choice.")
+                return
         
+            # Update the current attack mode to the newly chosen attack mode
+            self.attack_mode = available_attack_modes[attack_mode_choice]
+            return
+
+        if self.selected_attack_func == self.sss_jamming:
+            # Set default values for sss_jamming
+            # This has not been implemented
+            return
+
+        if self.selected_attack_func == self.pdch_exploit:
+            # Set default values for pdch_exploit
+            # This ha not been implemented
+            return
+
     def _run_attack(self) -> None:
-        if self.selected_attack_func:
-            confirm = input(f"Confirm running attack {self.selected_attack} with frequency={self.frequency}, duration={self.duration} and attack mode={self.attack_mode}? (y/n): ")
-            if confirm.lower() == 'y':
-                try:
-                    if self.selected_attack == '1':
-                        # Call the SSB_attack method from RadioController
-                        try:
-                            self.rc.SSB_attack(int(self.frequency), int(self.duration), self.attack_mode)
-                            print("SSB attack performed successfully.")
-                        except Exception as e:
-                            print(f"Error performing SSB attack: {str(e)}")
-                    elif self.selected_attack == '2':
-                        print("Not implemented")
-                        return
-                    elif self.selected_attack == '3':
-                        print("Not implemented")
-                        return
-                    else:
-                        print("Invalid attack choice.")
-                except Exception as e:
-                    print(f"Error running attack: {str(e)}")
-                self.reset_selected_attack()
-        else:
+        """Run the currently selected attack function."""
+
+        # If no valid attack function has been selected
+        if not self.selected_attack_func:
             print("No attack selected. Please choose an attack first.")
+            return
 
-    def reset_selected_attack(self) -> None:
-        self.selected_attack = None
-        self.selected_attack_func = None
-        self.frequency = "1857850000"
-        self.duration = "10"
-        self.attack_mode = AttackMode.SMART
+        # Make sure that the attacker wants to run an attack
+        print(f"Attack:         {self.selected_attack_func.__name__}")
+        print(f"Attack Mode:    {self.attack_mode.name}")
+        print(f"Frequency:      {self.frequency} Hz")
+        print(f"Duration:       {self.duration} second(s)")
+        confirmation: str = input("Confirm? (y/n): ").lower()
 
-    def sss_jamming(self): # Delete / change
-        print(f"Performing SSS Jamming with...")
+        if not confirmation == "y":
+            print("Aborted!")
+            return
 
-    def pdch_exploit(self): # Delete / change
-        print(f"Performing PDCH Exploit with...")
+        # Now run the selected attack!
 
-if __name__ == "__main__":
-    CLI().run()
+        if self.selected_attack_func == self.rc.SSB_attack:
+            try:
+                self.rc.SSB_attack(
+                    int(self.frequency),
+                    int(self.duration),
+                    self.attack_mode,
+                )
+                print("SSB attack performed successfully.")
+            except Exception as e:
+                print(f"Error performing SSB attack: {str(e)}")
+            self.reset_attack_parameters()
+            return
+
+        if self.selected_attack_func == self.sss_jamming:
+            self.sss_jamming()
+            return
+
+        if self.selected_attack_func == self.pdch_exploit:
+            self.pdch_exploit()
+            return
+
+    def sss_jamming(self):  # Delete / change
+        print("[NOT IMPLEMENTED] Performing SSS Jamming with...")
+
+    def pdch_exploit(self):  # Delete / change
+        print("[NOT IMPLEMENTED] Performing PDCH Exploit with...")
