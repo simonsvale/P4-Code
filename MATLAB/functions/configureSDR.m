@@ -1,4 +1,5 @@
 function [rx, tx] = configureSDR(platform, serialNumber)
+    
     % Setup the the receiving and transmitting objects.
     rx = hSDRReceiver(platform); % Super class of comm.SDRuReceiver().
     tx = comm.SDRuTransmitter(Platform=platform);
@@ -25,7 +26,8 @@ function [rx, tx] = configureSDR(platform, serialNumber)
     rx.SampleRate = 31e6;
     rx.Gain = 76;
     tx.Gain = 76;
-
+    
+    % Set the clock rate to the same
     rx.SDRObj.MasterClockRate = 31e6;
     tx.MasterClockRate = 31e6;
 

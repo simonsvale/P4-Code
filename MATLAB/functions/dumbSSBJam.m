@@ -19,7 +19,6 @@ function dumbSSBJam(rx, tx, centerFrequency, duration)
     
     % Generation
     waveform = sineWaves();
-    
     waveform = resample(waveform, 1000, tx.MasterClockRate/500);
     
     tx.ChannelMapping = 1;
@@ -43,14 +42,13 @@ function dumbSSBJam(rx, tx, centerFrequency, duration)
     
     disp("Starting transmission!");
     
+    % Transmit for the duration in seconds.
     tic;
     while toc < duration
         tx(waveform);
     end
     
-    
     disp("Done Transmitting!");
-    
 end
 
 
