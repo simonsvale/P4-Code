@@ -26,7 +26,7 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
         dataInput = reshape(dataInput, ofdmSize);
         
         % Get subcarrier spacing
-        scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
+        scsOptions = hSynchronizationRasterInfo.getSCSOptions(centerFrequency);
         scs =  double(extract(scsOptions(1),digitsPattern)) * 1e3;
 
         % Generation
