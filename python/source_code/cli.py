@@ -138,8 +138,7 @@ class CLI:
 
         print("Choose Attack:")
         print("[1] SSB Jamming")
-        print("[2] SSS Jamming")
-        print("[3] PDCH Exploit")
+        # Insert prints here for more options
 
         # Prompt the attacker to select a attack function
         attack_function_choice: str = input("Enter the number of the attack: ")
