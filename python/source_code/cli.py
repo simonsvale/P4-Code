@@ -8,9 +8,9 @@ class CLI:
 
     def __init__(self) -> None:
         self.rc = RadioController()
-        self.reset_attack_parameters()
+        self._reset_attack_parameters()
 
-    def reset_attack_parameters(self) -> None:
+    def _reset_attack_parameters(self) -> None:
         """Reset all parameters used for an attack to their default value."""
         self.selected_attack_func: function | None = None
         self.frequency: str = "1857850000"
@@ -132,8 +132,8 @@ class CLI:
 
         available_attack_functions: dict[str, function] = {
             "1": self.rc.SSB_attack,
-            "2": self.sss_jamming,  # Placeholder
-            "3": self.pdch_exploit,  # Placeholder
+            "2": self._sss_jamming,  # Placeholder
+            "3": self._pdch_exploit,  # Placeholder
         }
 
         print("Choose Attack:")
@@ -188,12 +188,12 @@ class CLI:
             self.attack_mode = available_attack_modes[attack_mode_choice]
             return
 
-        if self.selected_attack_func == self.sss_jamming:
+        if self.selected_attack_func == self._sss_jamming:
             # Set default values for sss_jamming
             # This has not been implemented
             return
 
-        if self.selected_attack_func == self.pdch_exploit:
+        if self.selected_attack_func == self._pdch_exploit:
             # Set default values for pdch_exploit
             # This ha not been implemented
             return
@@ -229,19 +229,19 @@ class CLI:
                 print("SSB attack performed successfully.")
             except Exception as e:
                 print(f"Error performing SSB attack: {str(e)}")
-            self.reset_attack_parameters()
+            self._reset_attack_parameters()
             return
 
-        if self.selected_attack_func == self.sss_jamming:
-            self.sss_jamming()
+        if self.selected_attack_func == self._sss_jamming:
+            self._sss_jamming()
             return
 
-        if self.selected_attack_func == self.pdch_exploit:
-            self.pdch_exploit()
+        if self.selected_attack_func == self._pdch_exploit:
+            self._pdch_exploit()
             return
 
-    def sss_jamming(self):  # Delete / change
+    def _sss_jamming(self):  # Delete / change
         print("[NOT IMPLEMENTED] Performing SSS Jamming with...")
 
-    def pdch_exploit(self):  # Delete / change
+    def _pdch_exploit(self):  # Delete / change
         print("[NOT IMPLEMENTED] Performing PDCH Exploit with...")
