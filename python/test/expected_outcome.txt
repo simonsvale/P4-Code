@@ -1,0 +1,9 @@
+.......Starting MATLAB engine
+SSB attacking mode: wrong attack mode
+.Starting MATLAB engine
+.Starting MATLAB engine
+.
+----------------------------------------------------------------------
+Ran 10 tests in 36.235s
+
+OK

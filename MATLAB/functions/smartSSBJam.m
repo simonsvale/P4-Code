@@ -26,7 +26,7 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
         dataInput = reshape(dataInput, ofdmSize);
         
         % Get subcarrier spacing
-        scsOptions = hSynchronizationRasterInfo.getSCSOptions(rx.CenterFrequency);
+        scsOptions = hSynchronizationRasterInfo.getSCSOptions(centerFrequency);
         scs =  double(extract(scsOptions(1),digitsPattern)) * 1e3;
 
         % Generation
@@ -88,13 +88,12 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
         transmissionTimer.TasksToExecute = 10000*floor(duration);
     end
 
-    % Get approx time since this function was called.
+    % Time until the transmission is started
     configureTime = 5;
-
-    sweepDuration = 30;
+    captureDuration = 30;
     
     % Check if any SSBs exists on the given center frequency.
-    [frequency, timestamp, realCaptureTime] = frequencySweep(rx, centerFrequency, sweepDuration);
+    [frequency, timestamp, hardwareCaptureDuration] = frequencySweep(rx, centerFrequency, captureDuration);
 
     % Check if no SSBs were found.
     if (isempty(frequency))
@@ -102,23 +101,26 @@ function smartSSBJam(rx, tx, centerFrequency, duration, OFDM)
         return
     end
 
+    % A constant for shifting the time domain position of the jaming signal.
+    arbitraryConstant = 3/2;
+
     % Adjust transmission timing to timestamp.
-    transmissionPoint = datenum(datetime(timestamp, 'ConvertFrom', 'datenum') + milliseconds((sweepDuration - realCaptureTime)*(3/2)) + seconds(configureTime));
+    synchronisedTransmissionPoint = datenum(datetime(timestamp, 'ConvertFrom', 'datenum') + milliseconds((captureDuration - hardwareCaptureDuration) * arbitraryConstant) + seconds(configureTime));
 
-    % Wait for the new transmission point.
-    while(datenum(clock)<=transmissionPoint)
+    % Wait for the synchronised transmission point.
+    while(datenum(clock)<=synchronisedTransmissionPoint)
     end
-
-    % transmit jamming signal.
+    
+    % Transmit the jamming signal.
     start(transmissionTimer);
-
     disp("Starting transmission!");
     
     % Wait for the jamming to stop.
     pause(duration);
-
+    
+    % Stop the timer object.
+    stop(transmissionTimer);
     disp("Done Transmitting!");
-    stop(transmissionTimer)
 
 end
 

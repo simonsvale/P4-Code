@@ -1,4 +1,4 @@
-function [SSBFrequencies, firstSSBTimestamps, realCaptureTime] = frequencySweep(rx, centerFrequencies, captureDuration)
+function [SSBFrequencies, firstSSBTimestamps, hardwareCaptureDuration] = frequencySweep(rx, centerFrequencies, captureDuration)
     
     % Convert capture duration to milliseconds.
     captureDuration = milliseconds(captureDuration);
@@ -12,7 +12,7 @@ function [SSBFrequencies, firstSSBTimestamps, realCaptureTime] = frequencySweep(
     % Create empty arrays for storing confirmed SSB frequencies and timestamps.
     SSBFrequencies = [];
     firstSSBTimestamps = [];
-
+    
     % Loop through all given frequencies.
     for i = 1:centerFrequenciesAmount
         
@@ -24,17 +24,18 @@ function [SSBFrequencies, firstSSBTimestamps, realCaptureTime] = frequencySweep(
         scs =  scsOptions(1);
 
         % Capture waveform
-        [waveform, timestamp, realCaptureTime] = capture(rx, captureDuration);
+        [waveform, timestamp, hardwareCaptureDuration] = capture(rx, captureDuration);
 
         try
-            % Attempt to detect the SSBs on the frequencies.
-            [SSB, offset] = approximateSSBPeriodicity(waveform, rx.CenterFrequency, scs, rx.SampleRate);
+            % Attempt to detect SSBs in the captured waveform.
+            [SSB, SSBTimeOffset] = getSSBTimestamp(waveform, rx.CenterFrequency, scs, rx.SampleRate);
+
             if SSB
                 % If an SSB is found add its frequency to the return array.
                 SSBFrequencies(end+1) = rx.CenterFrequency;
 
                 % Add the offset to the timestamp.
-                timestamp = datetime(timestamp, 'InputFormat', 'YYYY/mm/dd HH:MM:SS:FFF') + milliseconds(offset);
+                timestamp = datetime(timestamp, 'InputFormat', 'YYYY/mm/dd HH:MM:SS:FFF') + milliseconds(SSBTimeOffset);
                
                 % Add the correctly offset timestamp to the return array.
                 firstSSBTimestamps(end+1) = datenum(timestamp);
