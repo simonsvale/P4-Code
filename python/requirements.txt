@@ -1,2 +1,2 @@
 matlabengine==23.2.3
-nrarfcn
+nrarfcn==2.4.0
