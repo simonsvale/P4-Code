@@ -1,8 +1,8 @@
-function [detectedSSB, msOffset] = approximateSSBPeriodicity(waveform,centerFrequency,scs,sampleRate)
-% FINDSSB returns a logical value that depends on if WAVEFORM contains a
-% valid SSB.
+function [detectedSSB, SSBTimeOffset] = getSSBTimestamp(waveform,centerFrequency,scs,sampleRate)
+
+    % Get numeric sub-carrier spacing from string.
     scsNumeric = double(extract(scs,digitsPattern));
-    searchBW = 3*scsNumeric;
+    searchBW = 6*scsNumeric;
 
     % Important in selecting the strongest SSB.
     [correctedWaveform,~,NID2] = hSSBurstFrequencyCorrect(waveform,scsNumeric,sampleRate,searchBW);
@@ -96,10 +96,10 @@ function [detectedSSB, msOffset] = approximateSSBPeriodicity(waveform,centerFreq
     
     if crcBCH == 0
         % Get offset in milliseconds.
-        msOffset = timingOffset/sampleRate*1e3;
+        SSBTimeOffset = timingOffset/sampleRate*1e3;
         detectedSSB = true;
     else
         detectedSSB = false;
-        msOffset = -1;
+        SSBTimeOffset = -1;
     end
 end

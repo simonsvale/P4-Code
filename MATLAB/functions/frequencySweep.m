@@ -1,4 +1,4 @@
-function [SSBFrequencies, firstSSBTimestamps] = frequencySweep(rx, centerFrequencies, captureDuration)
+function [SSBFrequencies, firstSSBTimestamps, hardwareCaptureDuration] = frequencySweep(rx, centerFrequencies, captureDuration)
     
     % Convert capture duration to milliseconds.
     captureDuration = milliseconds(captureDuration);
@@ -12,7 +12,7 @@ function [SSBFrequencies, firstSSBTimestamps] = frequencySweep(rx, centerFrequen
     % Create empty arrays for storing confirmed SSB frequencies and timestamps.
     SSBFrequencies = [];
     firstSSBTimestamps = [];
-
+    
     % Loop through all given frequencies.
     for i = 1:centerFrequenciesAmount
         
@@ -24,46 +24,22 @@ function [SSBFrequencies, firstSSBTimestamps] = frequencySweep(rx, centerFrequen
         scs =  scsOptions(1);
 
         % Capture waveform
-        [waveform, timestamp] = capture(rx, captureDuration);
+        [waveform, timestamp, hardwareCaptureDuration] = capture(rx, captureDuration);
 
         try
-            % Attempt to detect the SSBs on the frequencies.
-            [SSB, offset] = approximateSSBPeriodicity(waveform, rx.CenterFrequency, scs, rx.SampleRate);
+            % Attempt to detect SSBs in the captured waveform.
+            [SSB, SSBTimeOffset] = getSSBTimestamp(waveform, rx.CenterFrequency, scs, rx.SampleRate);
+
             if SSB
                 % If an SSB is found add its frequency to the return array.
                 SSBFrequencies(end+1) = rx.CenterFrequency;
 
                 % Add the offset to the timestamp.
-                timestamp = datetime(timestamp, 'InputFormat', 'YYYY/mm/dd HH:MM:SS:FFF') + milliseconds(offset);
+                timestamp = datetime(timestamp, 'InputFormat', 'YYYY/mm/dd HH:MM:SS:FFF') + milliseconds(SSBTimeOffset);
                
                 % Add the correctly offset timestamp to the return array.
                 firstSSBTimestamps(end+1) = datenum(timestamp);
-                
-                %{
-                % Fig
-                nrbSSB = 10; % Number of resource blocks in an SSB
-                scsNumeric = double(extract(scs,digitsPattern));
-                ofdmInfo = nrOFDMInfo(nrbSSB,scsNumeric);
-                
-                % Display spectrogram of received waveform  
-                figure;
-                nfft = ofdmInfo.Nfft * 32;
-                spectrogram(waveform(:,1),ones(nfft,1),0,nfft,'centered',rx.SampleRate,'yaxis','MinThreshold',-130);
-                
-                plotVar = [];
 
-                for n = 1:milliseconds(captureDuration)/20
-                    plotVar(end+1) = offset+20.0*n;
-                    plotVar(end+1) = offset-20.0*n;
-                end
-
-                hold on;
-                plot(plotVar, 0, 'r.', 'MarkerSize', 10);
-
-                plot(offset, 0, 'b.', 'MarkerSize', 10);
-
-                title('Spectrogram of the Received Waveform');
-                %}
             end
         catch err
             disp("ERROR: " + err.identifier);
