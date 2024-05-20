@@ -1,3 +1,5 @@
+% Copyright 2023 The MathWorks, Inc.
+
 classdef MIB_2 < MessageFormat
     
     properties
